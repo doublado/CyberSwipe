@@ -547,7 +547,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7cc53784ce6bb6b4a9b740d6161b8f81, type: 2}
   - {fileID: 11400000, guid: 0839bcdf8c684a2408650902223a8e92, type: 2}
   - {fileID: 11400000, guid: 08a667ec477dd584aba591dd0b134d89, type: 2}
-  cardPrefab: {fileID: 7092570019630000395, guid: 71aa606908acfd94482e0bccb167682b, type: 3}
+  cardPrefab: {fileID: 5795658353368649929, guid: 645dc850827fb6a4083a0d6d66f4f2a9, type: 3}
   cardSpawnPoint: {fileID: 308256324}
   cardsPerCategory: 5
   endScreen: {fileID: 1073298104}

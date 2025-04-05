@@ -10,8 +10,10 @@ namespace CyberSwipe
         [SerializeField] private Image glowImage;
 
         [Header("Glow Settings")]
-        [SerializeField] private float glowPadding = 10f;
-        [SerializeField] private float glowWidth = 40f;
+        [SerializeField] private float glowPadding = 0f;
+        [SerializeField] private float glowHeight = 400f;
+        [SerializeField] private float glowOffset = 0f; // Start at the card's edge
+        [SerializeField] private float glowVerticalOffset = 0f;
 
         private RectTransform rectTransform;
         private CardData currentCardData;
@@ -61,6 +63,9 @@ namespace CyberSwipe
                 
                 // Ensure the glow is behind the card image
                 glowImage.rectTransform.SetAsFirstSibling();
+                
+                // Set the image type to sliced for proper scaling
+                glowImage.type = Image.Type.Sliced;
             }
         }
 
@@ -75,19 +80,25 @@ namespace CyberSwipe
                 
                 if (isRightSide)
                 {
-                    // Right side glow
-                    glowRect.anchorMin = new Vector2(1f, 0f);
-                    glowRect.anchorMax = new Vector2(1f, 1f);
-                    glowRect.offsetMin = new Vector2(0f, -glowPadding);
-                    glowRect.offsetMax = new Vector2(glowWidth, glowPadding);
+                    // Right side glow - triangle pointing right
+                    glowRect.anchorMin = new Vector2(1f, 0.5f);
+                    glowRect.anchorMax = new Vector2(1f, 0.5f);
+                    glowRect.pivot = new Vector2(0.5f, 0.5f); // Center pivot
+                    glowRect.sizeDelta = new Vector2(currentCardData.cardHeight, glowHeight);
+                    glowRect.anchoredPosition = new Vector2(glowOffset, glowVerticalOffset);
+                    glowRect.localScale = new Vector3(1f, 1f, 1f);
+                    glowRect.localRotation = Quaternion.Euler(0f, 0f, -90f);
                 }
                 else
                 {
-                    // Left side glow
-                    glowRect.anchorMin = new Vector2(0f, 0f);
-                    glowRect.anchorMax = new Vector2(0f, 1f);
-                    glowRect.offsetMin = new Vector2(-glowWidth, -glowPadding);
-                    glowRect.offsetMax = new Vector2(0f, glowPadding);
+                    // Left side glow - triangle pointing left
+                    glowRect.anchorMin = new Vector2(0f, 0.5f);
+                    glowRect.anchorMax = new Vector2(0f, 0.5f);
+                    glowRect.pivot = new Vector2(0.5f, 0.5f); // Center pivot
+                    glowRect.sizeDelta = new Vector2(currentCardData.cardHeight, glowHeight);
+                    glowRect.anchoredPosition = new Vector2(-glowOffset, glowVerticalOffset);
+                    glowRect.localScale = new Vector3(1f, 1f, 1f);
+                    glowRect.localRotation = Quaternion.Euler(0f, 0f, 90f);
                 }
             }
         }
