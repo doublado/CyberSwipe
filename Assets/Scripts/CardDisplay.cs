@@ -10,7 +10,6 @@ namespace CyberSwipe
         [SerializeField] private Image glowImage;
 
         [Header("Glow Settings")]
-        [SerializeField] private float glowPadding = 0f;
         [SerializeField] private float glowHeight = 400f;
         [SerializeField] private float glowOffset = 0f; // Start at the card's edge
         [SerializeField] private float glowVerticalOffset = 0f;
