@@ -59,7 +59,7 @@ namespace CyberSwipe
 
         private void UpdateVisualFeedback(float currentX)
         {
-            if (cardImage == null) return;
+            if (cardDisplay == null) return;
 
             float distanceFromCenter = currentX - startPosition.x;
             float normalizedDistance = Mathf.Clamp01(Mathf.Abs(distanceFromCenter) / swipeThreshold);
@@ -69,14 +69,14 @@ namespace CyberSwipe
                 // Dragging left (deny)
                 Color color = denyColor;
                 color.a = normalizedDistance * maxGlowAlpha;
-                cardImage.color = color;
+                cardDisplay.SetGlowColor(color, false); // false for left side
             }
             else
             {
                 // Dragging right (accept)
                 Color color = acceptColor;
                 color.a = normalizedDistance * maxGlowAlpha;
-                cardImage.color = color;
+                cardDisplay.SetGlowColor(color, true); // true for right side
             }
         }
 
@@ -86,10 +86,10 @@ namespace CyberSwipe
             Vector2 currentPosition = rectTransform.anchoredPosition;
             float swipeDistance = currentPosition.x - startPosition.x;
 
-            // Reset card color
-            if (cardImage != null)
+            // Reset glow color
+            if (cardDisplay != null)
             {
-                cardImage.color = Color.white;
+                cardDisplay.SetGlowColor(new Color(1f, 1f, 1f, 0f), swipeDistance > 0);
             }
 
             if (Mathf.Abs(swipeDistance) > swipeThreshold)

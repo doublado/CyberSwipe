@@ -543,7 +543,11 @@ MonoBehaviour:
   cardDeck:
   - {fileID: 11400000, guid: f6cfde2ea2a04294fbdc08202622e45d, type: 2}
   - {fileID: 11400000, guid: 4064d750c68d80c449e4213931225705, type: 2}
-  cardPrefab: {fileID: 1574216150005051241, guid: 9434621a1f79bde4883573abca1817d1, type: 3}
+  - {fileID: 11400000, guid: 7b561179710ac7645b735bcd906ad9c6, type: 2}
+  - {fileID: 11400000, guid: 7cc53784ce6bb6b4a9b740d6161b8f81, type: 2}
+  - {fileID: 11400000, guid: 0839bcdf8c684a2408650902223a8e92, type: 2}
+  - {fileID: 11400000, guid: 08a667ec477dd584aba591dd0b134d89, type: 2}
+  cardPrefab: {fileID: 7092570019630000395, guid: 71aa606908acfd94482e0bccb167682b, type: 3}
   cardSpawnPoint: {fileID: 308256324}
   cardsPerCategory: 5
   endScreen: {fileID: 1073298104}

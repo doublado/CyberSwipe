@@ -7,6 +7,11 @@ namespace CyberSwipe
     {
         [Header("UI References")]
         [SerializeField] private Image cardImage;
+        [SerializeField] private Image glowImage;
+
+        [Header("Glow Settings")]
+        [SerializeField] private float glowPadding = 10f;
+        [SerializeField] private float glowWidth = 40f;
 
         private RectTransform rectTransform;
         private CardData currentCardData;
@@ -46,6 +51,44 @@ namespace CyberSwipe
                 
                 // Apply the image scale
                 imageRect.localScale = Vector3.one * currentCardData.imageScale;
+            }
+
+            // Set up the glow image
+            if (glowImage != null)
+            {
+                // Start with transparent glow
+                glowImage.color = new Color(1f, 1f, 1f, 0f);
+                
+                // Ensure the glow is behind the card image
+                glowImage.rectTransform.SetAsFirstSibling();
+            }
+        }
+
+        public void SetGlowColor(Color color, bool isRightSide)
+        {
+            if (glowImage != null)
+            {
+                glowImage.color = color;
+                
+                // Adjust the glow to only show on the side being swiped
+                RectTransform glowRect = glowImage.rectTransform;
+                
+                if (isRightSide)
+                {
+                    // Right side glow
+                    glowRect.anchorMin = new Vector2(1f, 0f);
+                    glowRect.anchorMax = new Vector2(1f, 1f);
+                    glowRect.offsetMin = new Vector2(0f, -glowPadding);
+                    glowRect.offsetMax = new Vector2(glowWidth, glowPadding);
+                }
+                else
+                {
+                    // Left side glow
+                    glowRect.anchorMin = new Vector2(0f, 0f);
+                    glowRect.anchorMax = new Vector2(0f, 1f);
+                    glowRect.offsetMin = new Vector2(-glowWidth, -glowPadding);
+                    glowRect.offsetMax = new Vector2(0f, glowPadding);
+                }
             }
         }
 

@@ -15,8 +15,8 @@ MonoBehaviour:
   CardId: 2
   cardCategory: 0
   IsSafe: 1
-  cardWidth: 1500
-  cardHeight: 934
+  cardWidth: 1275
+  cardHeight: 794
   CardImage: {fileID: 3779341337297003761, guid: 27c8a4d0669c3574dbe9dd56c4f950f1, type: 3}
   imageScale: 1
   acceptOutcome: test
