@@ -4,12 +4,12 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
 -- Create a new user for the analytics application
-CREATE USER IF NOT EXISTS 'your_username'@'localhost' 
+CREATE USER IF NOT EXISTS 'analytics_user'@'localhost' 
 IDENTIFIED BY 'your_password';
 
 -- Grant all privileges on the analytics database to the new user
 GRANT ALL PRIVILEGES ON cyber_swipe_analytics.* 
-TO 'your_username'@'localhost';
+TO 'analytics_user'@'localhost';
 
 -- Flush privileges to apply changes
 FLUSH PRIVILEGES;
@@ -24,7 +24,9 @@ CREATE TABLE IF NOT EXISTS sessions (
     user_id VARCHAR(255) NOT NULL,
     platform VARCHAR(50) NOT NULL,
     resolution VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    device_model VARCHAR(100),
+    os_version VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create events table
@@ -37,12 +39,35 @@ CREATE TABLE IF NOT EXISTS events (
     success BOOLEAN,
     duration FLOAT,
     start_x FLOAT,
-    start_y FLOAT,
     end_x FLOAT,
-    end_y FLOAT,
     max_rotation FLOAT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create performance_metrics table
+CREATE TABLE IF NOT EXISTS performance_metrics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fps FLOAT,
     memory_usage BIGINT,
+    cpu_usage FLOAT,
+    gpu_usage FLOAT,
+    network_latency INT,
+    FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create category_stats table
+CREATE TABLE IF NOT EXISTS category_stats (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    total_cards INT DEFAULT 0,
+    accepted_cards INT DEFAULT 0,
+    rejected_cards INT DEFAULT 0,
+    average_decision_time FLOAT DEFAULT 0,
+    completion_time INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; 

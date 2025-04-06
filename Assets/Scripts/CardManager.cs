@@ -24,6 +24,8 @@ namespace CyberSwipe
         private GameManager gameManager;
         private CardAnimationHandler animationHandler;
         private Image cardImage;
+        private float swipeStartTime;
+        private float maxRotationReached;
 
         private void Awake()
         {
@@ -38,6 +40,8 @@ namespace CyberSwipe
         {
             isDragging = true;
             startPosition = rectTransform.anchoredPosition;
+            swipeStartTime = Time.time;
+            maxRotationReached = 0f;
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -52,6 +56,9 @@ namespace CyberSwipe
             // Calculate rotation based on horizontal position
             float rotation = (currentPosition.x - startPosition.x) * rotationMultiplier;
             rectTransform.rotation = Quaternion.Euler(0, 0, rotation);
+            
+            // Track maximum rotation
+            maxRotationReached = Mathf.Max(maxRotationReached, Mathf.Abs(rotation));
 
             // Update visual feedback based on drag position
             UpdateVisualFeedback(currentPosition.x);
@@ -95,10 +102,41 @@ namespace CyberSwipe
             if (Mathf.Abs(swipeDistance) > swipeThreshold)
             {
                 bool wasAccepted = swipeDistance > 0;
+                float swipeDuration = Time.time - swipeStartTime;
+                
+                Debug.Log($"[CardManager] Card swiped - Distance: {swipeDistance}, Accepted: {wasAccepted}");
+                
+                // Track analytics before handling the card decision
+                if (AnalyticsConsentPopup.IsAnalyticsEnabled())
+                {
+                    Debug.Log("[CardManager] Analytics enabled, attempting to track swipe");
+                    if (AnalyticsService.Instance != null)
+                    {
+                        Debug.Log("[CardManager] AnalyticsService instance found, tracking swipe");
+                        AnalyticsService.Instance.TrackCardSwipe(
+                            cardDisplay.GetCardData(),
+                            swipeDuration,
+                            maxRotationReached,
+                            wasAccepted,
+                            startPosition,
+                            rectTransform.anchoredPosition
+                        );
+                    }
+                    else
+                    {
+                        Debug.LogError("[CardManager] AnalyticsService instance is null!");
+                    }
+                }
+                else
+                {
+                    Debug.Log("[CardManager] Analytics not enabled, skipping tracking");
+                }
+                
                 HandleCardDecision(wasAccepted);
             }
             else
             {
+                Debug.Log("[CardManager] Swipe distance too small, returning to center");
                 // Always recenter the card if it's not swiped far enough
                 if (animationHandler != null)
                 {

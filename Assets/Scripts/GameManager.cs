@@ -25,6 +25,7 @@ namespace CyberSwipe
         private int totalRevenueImpact = 0;
         private CardData.Category currentCategory;
         private bool gameStarted = false;
+        private bool sessionEnded = false;
 
         private void Start()
         {
@@ -59,6 +60,20 @@ namespace CyberSwipe
             {
                 Debug.LogError("No valid categories with cards available!");
                 return;
+            }
+            
+            // Initialize category stats if analytics is enabled
+            if (AnalyticsService.Instance != null && AnalyticsConsentPopup.IsAnalyticsEnabled())
+            {
+                string categoryName = currentCategory.ToString();
+                if (!AnalyticsService.Instance.GetCategoryStats().ContainsKey(categoryName))
+                {
+                    AnalyticsService.Instance.GetCategoryStats()[categoryName] = new AnalyticsService.CategoryStats 
+                    { 
+                        startTime = Time.time 
+                    };
+                    Debug.Log($"[GameManager] Initialized stats for category: {categoryName}");
+                }
             }
             
             LoadCategoryCards();
@@ -183,8 +198,10 @@ namespace CyberSwipe
             }
             endScreenRevenue.text = revenueText;
             
-            // Mark category as completed
+            // Mark category as completed and track analytics
             completedCategories.Add(currentCategory);
+            OnCategoryCompleted(currentCategory.ToString());
+            UnityEngine.Debug.Log($"[GameManager] Category completed: {currentCategory}");
         }
 
         private string GetCategoryNameInDanish(CardData.Category category)
@@ -221,6 +238,40 @@ namespace CyberSwipe
                 CardData temp = cardDeck[i];
                 cardDeck[i] = cardDeck[randomIndex];
                 cardDeck[randomIndex] = temp;
+            }
+        }
+
+        public void OnCategoryCompleted(string categoryName)
+        {
+            if (AnalyticsService.Instance != null && AnalyticsConsentPopup.IsAnalyticsEnabled())
+            {
+                AnalyticsService.Instance.TrackCategoryCompletion(categoryName);
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            if (!sessionEnded)
+            {
+                Debug.Log("[GameManager] Application quitting, ending analytics session");
+                if (AnalyticsConsentPopup.IsAnalyticsEnabled())
+                {
+                    AnalyticsService.Instance.EndSession();
+                    sessionEnded = true;
+                }
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (!sessionEnded)
+            {
+                Debug.Log("[GameManager] GameManager destroyed, ending analytics session");
+                if (AnalyticsConsentPopup.IsAnalyticsEnabled())
+                {
+                    AnalyticsService.Instance.EndSession();
+                    sessionEnded = true;
+                }
             }
         }
     }

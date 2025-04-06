@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73ce49501b78fbc42b5d2c45c4945fa7, type: 3}
+  m_Name: AnalyticsSettings
+  m_EditorClassIdentifier: 
+  serverUrl: http://localhost:8080
+  jwtSecret: hX2C3caG7Q9@0f@j@h8&7wKBe9WmHTEMqS&461jxt%ZpfkaUeAgND2UuB2JTP%J*
+  requestTimeout: 5
+  maxRetries: 3
+  retryDelay: 1
+  enableDebugLogging: 1

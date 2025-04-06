@@ -1,15 +1,20 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using System;
+using System.Collections;
+using UnityEngine.Networking;
 
 namespace CyberSwipe
 {
     public class AnalyticsConsentPopup : MonoBehaviour
     {
+        private static AnalyticsConsentPopup instance;
+        public static AnalyticsConsentPopup Instance => instance;
+
         [Header("Analytics Settings")]
         [SerializeField] private bool enableAnalytics = true;
         [SerializeField] private bool requireConsentEachSession = true;
+        [SerializeField] private AnalyticsSettings analyticsSettings;
 
         [Header("UI References")]
         [SerializeField] private GameObject popupPanel;
@@ -20,17 +25,33 @@ namespace CyberSwipe
 
         private GameManager gameManager;
         private bool isClosing = false;
+        private bool isServerReachable = false;
 
         private void Awake()
         {
             Debug.Log("AnalyticsConsentPopup: Awake called");
+            
+            // Handle singleton pattern
+            if (instance == null)
+            {
+                instance = this;
+                DontDestroyOnLoad(gameObject);
+                Debug.Log("AnalyticsConsentPopup: Set as singleton instance");
+            }
+            else
+            {
+                Debug.Log("AnalyticsConsentPopup: Destroying duplicate instance");
+                Destroy(gameObject);
+                return;
+            }
+
             Debug.Log($"Popup Panel reference: {(popupPanel != null ? "Set" : "Null")}");
             Debug.Log($"Title Text reference: {(titleText != null ? "Set" : "Null")}");
             Debug.Log($"Description Text reference: {(descriptionText != null ? "Set" : "Null")}");
             Debug.Log($"Accept Button reference: {(acceptButton != null ? "Set" : "Null")}");
             Debug.Log($"Decline Button reference: {(declineButton != null ? "Set" : "Null")}");
 
-            gameManager = UnityEngine.Object.FindFirstObjectByType<GameManager>();
+            gameManager = Object.FindFirstObjectByType<GameManager>();
             Debug.Log($"GameManager reference: {(gameManager != null ? "Found" : "Not Found")}");
             
             // Add button listeners
@@ -75,20 +96,63 @@ namespace CyberSwipe
                 return;
             }
             
-            // Only show popup if we don't have consent yet
-            if (!HasConsent())
+            StartCoroutine(CheckServerConnection());
+        }
+
+        private IEnumerator CheckServerConnection()
+        {
+            if (analyticsSettings == null)
             {
-                Debug.Log("AnalyticsConsentPopup: No consent found, showing popup");
-                ShowPopup();
+                Debug.LogError("AnalyticsConsentPopup: AnalyticsSettings not assigned!");
+                StartGameWithoutAnalytics();
+                yield break;
             }
-            else
+
+            using (UnityWebRequest request = UnityWebRequest.Get($"{analyticsSettings.serverUrl}/health"))
             {
-                Debug.Log("AnalyticsConsentPopup: Consent found, starting game");
-                // If we already have consent, start the game
-                if (gameManager != null)
+                request.timeout = (int)analyticsSettings.requestTimeout;
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
                 {
-                    gameManager.StartGame();
+                    isServerReachable = true;
+                    Debug.Log("AnalyticsConsentPopup: Server connection successful");
+                    
+                    if (!HasConsent())
+                    {
+                        ShowPopup();
+                    }
+                    else
+                    {
+                        if (gameManager != null)
+                        {
+                            gameManager.StartGame();
+                        }
+                    }
                 }
+                else
+                {
+                    isServerReachable = false;
+                    Debug.LogWarning($"AnalyticsConsentPopup: Server connection failed: {request.error}");
+                    StartGameWithoutAnalytics();
+                }
+            }
+        }
+
+        private void StartGameWithoutAnalytics()
+        {
+            Debug.Log("AnalyticsConsentPopup: Starting game without analytics");
+            
+            // Close the popup if it's open
+            if (popupPanel != null && popupPanel.activeSelf)
+            {
+                popupPanel.SetActive(false);
+                Debug.Log("AnalyticsConsentPopup: Closed popup since analytics are not available");
+            }
+            
+            if (gameManager != null)
+            {
+                gameManager.StartGame();
             }
         }
 
@@ -109,17 +173,22 @@ namespace CyberSwipe
         private void OnAcceptClicked()
         {
             Debug.Log("AnalyticsConsentPopup: Accept clicked");
-            // Store the consent in PlayerPrefs
             PlayerPrefs.SetInt("AnalyticsConsent", 1);
             PlayerPrefs.Save();
 
-            // Hide the popup and start the game
+            // Initialize analytics session
+            if (AnalyticsService.Instance != null)
+            {
+                AnalyticsService.Instance.InitializeSession();
+            }
+
+            // Only hide the popup panel, don't destroy the GameObject
             if (popupPanel != null)
             {
                 popupPanel.SetActive(false);
+                Debug.Log("AnalyticsConsentPopup: Panel hidden, keeping GameObject active");
             }
 
-            // Start the game
             if (gameManager != null)
             {
                 gameManager.StartGame();
@@ -128,15 +197,13 @@ namespace CyberSwipe
 
         private void OnDeclineClicked()
         {
-            if (isClosing) return; // Prevent multiple clicks
+            if (isClosing) return;
             isClosing = true;
 
             Debug.Log("AnalyticsConsentPopup: Decline clicked");
-            // Store the decline in PlayerPrefs
             PlayerPrefs.SetInt("AnalyticsConsent", 0);
             PlayerPrefs.Save();
 
-            // Close the game immediately
             Debug.Log("AnalyticsConsentPopup: Closing game now");
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
@@ -152,8 +219,22 @@ namespace CyberSwipe
 
         public static bool IsAnalyticsEnabled()
         {
-            AnalyticsConsentPopup instance = UnityEngine.Object.FindFirstObjectByType<AnalyticsConsentPopup>();
-            return instance != null && instance.enableAnalytics;
+            if (instance == null)
+            {
+                Debug.Log("[AnalyticsConsentPopup] IsAnalyticsEnabled: No instance found");
+                return false;
+            }
+
+            bool hasInstance = instance != null;
+            bool analyticsEnabled = instance.enableAnalytics;
+            bool serverReachable = instance.isServerReachable;
+            
+            Debug.Log($"[AnalyticsConsentPopup] IsAnalyticsEnabled check:");
+            Debug.Log($"- Has instance: {hasInstance}");
+            Debug.Log($"- Analytics enabled: {analyticsEnabled}");
+            Debug.Log($"- Server reachable: {serverReachable}");
+            
+            return hasInstance && analyticsEnabled && serverReachable;
         }
 
         // Test method to verify the popup works
