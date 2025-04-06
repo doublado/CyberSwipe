@@ -24,6 +24,7 @@ namespace CyberSwipe
         private List<string> decisionOutcomes = new List<string>();
         private int totalRevenueImpact = 0;
         private CardData.Category currentCategory;
+        private bool gameStarted = false;
 
         private void Start()
         {
@@ -33,6 +34,18 @@ namespace CyberSwipe
                 endScreen.SetActive(false);
             }
             
+            // Check analytics consent before starting
+            if (AnalyticsConsentPopup.HasConsent())
+            {
+                StartGame();
+            }
+        }
+
+        public void StartGame()
+        {
+            if (gameStarted) return;
+            gameStarted = true;
+
             ShuffleDeck();
             StartNewCategory();
         }
@@ -141,32 +154,56 @@ namespace CyberSwipe
         private void ShowEndScreen()
         {
             endScreen.SetActive(true);
-            endScreenTitle.text = $"Category Complete: {currentCategory}";
             
-            string outcomesText = "Decisions and Outcomes:\n\n";
+            // Set title with category name
+            string categoryName = GetCategoryNameInDanish(currentCategory);
+            endScreenTitle.text = $"Kategori gennemført: {categoryName}";
+            
+            // Set outcomes text
+            string outcomesText = "Beslutninger og resultater:\n\n";
             foreach (string outcome in decisionOutcomes)
             {
                 outcomesText += outcome + "\n\n";
             }
             endScreenOutcome.text = outcomesText;
             
-            string revenueText = $"Total Revenue Impact: ${totalRevenueImpact:N0}\n";
+            // Set revenue text
+            string revenueText = $"Samlet indvirkning på omsætning: {totalRevenueImpact:N0} kr.\n";
             if (totalRevenueImpact < 0)
             {
-                revenueText += "The company suffered financial losses.";
+                revenueText += "Virksomheden led økonomiske tab.";
             }
             else if (totalRevenueImpact > 0)
             {
-                revenueText += "The company made financial gains.";
+                revenueText += "Virksomheden opnåede økonomiske gevinster.";
             }
             else
             {
-                revenueText += "The company's financial status remained unchanged.";
+                revenueText += "Virksomhedens økonomiske status forblev uændret.";
             }
             endScreenRevenue.text = revenueText;
             
             // Mark category as completed
             completedCategories.Add(currentCategory);
+        }
+
+        private string GetCategoryNameInDanish(CardData.Category category)
+        {
+            switch (category)
+            {
+                case CardData.Category.Phishing:
+                    return "Phishing";
+                case CardData.Category.MaliciousFiles:
+                    return "Skadelige Filer";
+                case CardData.Category.SocialEngineering:
+                    return "Social Engineering";
+                case CardData.Category.NetworkSecurity:
+                    return "Netværkssikkerhed";
+                case CardData.Category.PhysicalSecurity:
+                    return "Fysisk Sikkerhed";
+                default:
+                    return category.ToString();
+            }
         }
 
         public void ContinueToNextCategory()
