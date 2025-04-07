@@ -7,20 +7,13 @@ import (
 	"net/http"
 
 	"bytes"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AnalyticsHandler struct {
 	db *storage.DB
-}
-
-// HealthCheck handles the health check endpoint
-func HealthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "ok",
-		"version": "1.0.0",
-	})
 }
 
 func SetupRoutes(router *gin.Engine, db *storage.DB) {
@@ -39,6 +32,14 @@ func SetupRoutes(router *gin.Engine, db *storage.DB) {
 		analytics.POST("/category", handler.recordCategoryStats)
 		analytics.GET("/stats", handler.getStats)
 	}
+}
+
+// HealthCheck handles the health check endpoint
+func HealthCheck(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "ok",
+		"version": "1.0.0",
+	})
 }
 
 func (h *AnalyticsHandler) createSession(c *gin.Context) {
@@ -125,22 +126,127 @@ func (h *AnalyticsHandler) recordEvent(c *gin.Context) {
 }
 
 func (h *AnalyticsHandler) getStats(c *gin.Context) {
-	// Example: Get average swipe duration
-	var avgDuration float64
-	err := h.db.QueryRow(`
-		SELECT AVG(duration)
-		FROM events
-		WHERE event_type = 'card_swipe'
-	`).Scan(&avgDuration)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get statistics"})
+	// Get the secret key from the Authorization header
+	secretKey := c.GetHeader("X-Admin-Secret")
+	if secretKey == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing admin secret key"})
 		return
 	}
 
+	// Verify the secret key
+	if secretKey != os.Getenv("ADMIN_SECRET_KEY") {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid admin secret key"})
+		return
+	}
+
+	// Get session statistics
+	var totalSessions int
+	var avgSessionDuration float64
+	err := h.db.QueryRow(`
+		SELECT 
+			COUNT(*) as total_sessions,
+			AVG(session_duration) as avg_duration
+		FROM sessions
+		WHERE ended_at IS NOT NULL
+	`).Scan(&totalSessions, &avgSessionDuration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get session statistics"})
+		return
+	}
+
+	// Get performance metrics
+	var avgFPS float64
+	var avgMemoryUsage float64
+	var avgCPUUsage float64
+	var avgGPUUsage float64
+	var avgNetworkLatency float64
+	err = h.db.QueryRow(`
+		SELECT 
+			AVG(fps) as avg_fps,
+			AVG(memory_usage) as avg_memory,
+			AVG(cpu_usage) as avg_cpu,
+			AVG(gpu_usage) as avg_gpu,
+			AVG(network_latency) as avg_latency
+		FROM performance_metrics
+	`).Scan(&avgFPS, &avgMemoryUsage, &avgCPUUsage, &avgGPUUsage, &avgNetworkLatency)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get performance metrics"})
+		return
+	}
+
+	// Get card swipe statistics
+	var totalSwipes int
+	var avgSwipeDuration float64
+	var successRate float64
+	err = h.db.QueryRow(`
+		SELECT 
+			COUNT(*) as total_swipes,
+			AVG(duration) as avg_duration,
+			AVG(CASE WHEN success THEN 1 ELSE 0 END) * 100 as success_rate
+		FROM events
+		WHERE event_type = 'card_swipe'
+	`).Scan(&totalSwipes, &avgSwipeDuration, &successRate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get swipe statistics"})
+		return
+	}
+
+	// Get category statistics
+	rows, err := h.db.Query(`
+		SELECT 
+			category_name,
+			COUNT(*) as total_cards,
+			SUM(accepted_cards) as total_accepted,
+			SUM(rejected_cards) as total_rejected,
+			AVG(average_decision_time) as avg_decision_time,
+			AVG(completion_time) as avg_completion_time
+		FROM category_stats
+		GROUP BY category_name
+	`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get category statistics"})
+		return
+	}
+	defer rows.Close()
+
+	var categoryStats []map[string]interface{}
+	for rows.Next() {
+		var categoryName string
+		var totalCards, totalAccepted, totalRejected int
+		var avgDecisionTime, avgCompletionTime float64
+		err := rows.Scan(&categoryName, &totalCards, &totalAccepted, &totalRejected, &avgDecisionTime, &avgCompletionTime)
+		if err != nil {
+			continue
+		}
+		categoryStats = append(categoryStats, map[string]interface{}{
+			"category_name":       categoryName,
+			"total_cards":         totalCards,
+			"total_accepted":      totalAccepted,
+			"total_rejected":      totalRejected,
+			"avg_decision_time":   avgDecisionTime,
+			"avg_completion_time": avgCompletionTime,
+		})
+	}
+
+	// Return comprehensive statistics
 	c.JSON(http.StatusOK, gin.H{
-		"average_swipe_duration": avgDuration,
-		// Add more statistics as needed
+		"sessions": gin.H{
+			"total_sessions":       totalSessions,
+			"avg_session_duration": avgSessionDuration,
+		},
+		"performance": gin.H{
+			"avg_fps":             avgFPS,
+			"avg_memory_usage":    avgMemoryUsage,
+			"avg_cpu_usage":       avgCPUUsage,
+			"avg_gpu_usage":       avgGPUUsage,
+			"avg_network_latency": avgNetworkLatency,
+		},
+		"card_swipes": gin.H{
+			"total_swipes":       totalSwipes,
+			"avg_swipe_duration": avgSwipeDuration,
+			"success_rate":       successRate,
+		},
+		"categories": categoryStats,
 	})
 }
 

@@ -35,7 +35,6 @@ namespace CyberSwipe
             if (instance == null)
             {
                 instance = this;
-                DontDestroyOnLoad(gameObject);
                 Debug.Log("AnalyticsConsentPopup: Set as singleton instance");
             }
             else
@@ -247,6 +246,11 @@ namespace CyberSwipe
 
             // Show the popup
             ShowPopup();
+        }
+
+        public bool IsPopupActive()
+        {
+            return popupPanel != null && popupPanel.activeSelf;
         }
     }
 } 

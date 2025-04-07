@@ -12,6 +12,7 @@ namespace CyberSwipe
         public static PerformanceMonitor Instance => instance;
 
         [SerializeField] private float updateInterval = 1.0f;
+        [SerializeField] private float networkCheckInterval = 5.0f; // Check network every 5 seconds
         [SerializeField] private bool enablePerformanceLogging = true;
 
         private float fps;
@@ -20,7 +21,13 @@ namespace CyberSwipe
         private float gpuUsage;
         private int networkLatency;
         private float lastUpdateTime;
+        private float lastNetworkCheckTime;
         private Stopwatch stopwatch;
+        private bool isTracking = false;
+        private int frameCount;
+        private float frameTime;
+        private float lastCpuTime;
+        private float lastGpuTime;
 
         private void Start()
         {
@@ -29,7 +36,11 @@ namespace CyberSwipe
                 instance = this;
                 DontDestroyOnLoad(gameObject);
                 stopwatch = new Stopwatch();
-                StartCoroutine(UpdateMetricsCoroutine());
+                lastCpuTime = Time.realtimeSinceStartup;
+                lastGpuTime = Time.realtimeSinceStartup;
+                
+                // Start checking for consent
+                StartCoroutine(WaitForConsent());
             }
             else
             {
@@ -37,10 +48,63 @@ namespace CyberSwipe
             }
         }
 
+        private void Update()
+        {
+            if (!isTracking || !AnalyticsConsentPopup.IsAnalyticsEnabled()) return;
+
+            // Count frames and accumulate frame time
+            frameCount++;
+            frameTime += Time.deltaTime;
+
+            // Calculate CPU usage based on real time
+            float currentTime = Time.realtimeSinceStartup;
+            float deltaTime = currentTime - lastCpuTime;
+            if (deltaTime > 0)
+            {
+                cpuUsage = (Time.deltaTime / deltaTime) * 100f;
+            }
+            lastCpuTime = currentTime;
+
+            // Calculate GPU usage based on frame time
+            float targetFrameTime = 1f / 60f; // Target 60 FPS
+            float frameTimeRatio = Time.deltaTime / targetFrameTime;
+            gpuUsage = Mathf.Clamp((1f - frameTimeRatio) * 100f, 0f, 100f);
+        }
+
+        private IEnumerator WaitForConsent()
+        {
+            // Wait until the consent popup is no longer being displayed
+            while (AnalyticsConsentPopup.Instance != null && AnalyticsConsentPopup.Instance.IsPopupActive())
+            {
+                UnityEngine.Debug.Log("[PerformanceMonitor] Waiting for consent popup to be closed...");
+                yield return new WaitForSeconds(1f);
+            }
+
+            // Only start tracking if analytics is enabled
+            if (AnalyticsConsentPopup.IsAnalyticsEnabled())
+            {
+                isTracking = true;
+                StartCoroutine(UpdateMetricsCoroutine());
+                UnityEngine.Debug.Log("[PerformanceMonitor] Started tracking after consent received");
+            }
+            else
+            {
+                UnityEngine.Debug.Log("[PerformanceMonitor] Analytics not enabled, not starting tracking");
+            }
+        }
+
         private IEnumerator UpdateMetricsCoroutine()
         {
-            while (true)
+            while (isTracking)
             {
+                // Check if analytics is still enabled
+                if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
+                {
+                    UnityEngine.Debug.Log("[PerformanceMonitor] Analytics disabled, stopping tracking");
+                    isTracking = false;
+                    yield break;
+                }
+
                 UpdateMetrics();
                 SendMetrics();
                 yield return new WaitForSeconds(updateInterval);
@@ -49,39 +113,41 @@ namespace CyberSwipe
 
         private void UpdateMetrics()
         {
-            // Calculate FPS
-            float timeSinceLastUpdate = Time.time - lastUpdateTime;
-            fps = 1.0f / timeSinceLastUpdate;
-            lastUpdateTime = Time.time;
+            if (!isTracking || !AnalyticsConsentPopup.IsAnalyticsEnabled()) return;
+
+            // Calculate FPS based on actual frame count and time
+            if (frameTime > 0)
+            {
+                fps = frameCount / frameTime;
+            }
+            else
+            {
+                fps = 0;
+            }
+
+            // Reset frame counting
+            frameCount = 0;
+            frameTime = 0;
 
             // Get memory usage
             memoryUsage = System.GC.GetTotalMemory(false);
 
-            // Calculate CPU usage (simplified)
-            stopwatch.Stop();
-            float elapsedMs = stopwatch.ElapsedMilliseconds;
-            cpuUsage = (elapsedMs / (updateInterval * 1000f)) * 100f;
-            stopwatch.Reset();
-            stopwatch.Start();
-
-            // Get GPU usage (simplified - Unity doesn't provide direct GPU usage)
-            gpuUsage = QualitySettings.GetQualityLevel() * 10f;
-
-            // Measure network latency
-            StartCoroutine(MeasureNetworkLatency());
+            // Only check network latency periodically
+            if (Time.time - lastNetworkCheckTime >= networkCheckInterval)
+            {
+                StartCoroutine(MeasureNetworkLatency());
+                lastNetworkCheckTime = Time.time;
+            }
 
             if (enablePerformanceLogging)
             {
-                UnityEngine.Debug.Log($"[Performance] FPS: {fps:F1}, Memory: {memoryUsage / 1024 / 1024:F1}MB, CPU: {cpuUsage:F1}%, GPU: {gpuUsage:F1}%");
+                UnityEngine.Debug.Log($"[Performance] FPS: {fps:F0}, Memory: {memoryUsage / 1024 / 1024:F1}MB, CPU: {cpuUsage:F1}%, GPU: {gpuUsage:F1}%");
             }
         }
 
         private IEnumerator MeasureNetworkLatency()
         {
-            if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
-            {
-                yield break;
-            }
+            if (!isTracking || !AnalyticsConsentPopup.IsAnalyticsEnabled()) yield break;
 
             string url = AnalyticsManager.Instance.GetServerUrl() + "/health";
             stopwatch.Reset();
@@ -92,19 +158,28 @@ namespace CyberSwipe
                 yield return request.SendWebRequest();
                 stopwatch.Stop();
                 networkLatency = (int)stopwatch.ElapsedMilliseconds;
+                
+                if (enablePerformanceLogging)
+                {
+                    UnityEngine.Debug.Log($"[Performance] Network latency: {networkLatency}ms");
+                }
             }
         }
 
         private void SendMetrics()
         {
-            if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
+            if (!isTracking || !AnalyticsConsentPopup.IsAnalyticsEnabled()) return;
+
+            string sessionId = AnalyticsService.Instance?.GetSessionId();
+            if (string.IsNullOrEmpty(sessionId))
             {
+                UnityEngine.Debug.LogWarning("[PerformanceMonitor] Cannot send metrics: No valid session ID");
                 return;
             }
 
             var metrics = new Dictionary<string, object>
             {
-                { "session_id", AnalyticsService.Instance.GetSessionId() },
+                { "session_id", sessionId },
                 { "fps", fps },
                 { "memory_usage", memoryUsage },
                 { "cpu_usage", cpuUsage },
