@@ -8,35 +8,44 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// DB wraps the sql.DB type to provide database operations
+// for the analytics server.
 type DB struct {
 	*sql.DB
 }
 
+// InitDB initializes a new database connection using the provided configuration.
+// It establishes the connection, verifies it's working, and creates necessary tables.
+// Returns a DB instance or an error if initialization fails.
 func InitDB(cfg *config.Config) (*DB, error) {
-	// Format: "username:password@tcp(host:port)/dbname?parseTime=true"
-	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+	// Format the connection string for MySQL
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
 
-	db, err := sql.Open("mysql", connStr)
+	// Open a new database connection
+	database, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		return nil, fmt.Errorf("error opening database: %v", err)
 	}
 
-	if err := db.Ping(); err != nil {
+	// Verify the connection is working
+	if err := database.Ping(); err != nil {
 		return nil, fmt.Errorf("error connecting to database: %v", err)
 	}
 
-	// Create tables if they don't exist
-	if err := createTables(db); err != nil {
+	// Create required tables if they don't exist
+	if err := createTables(database); err != nil {
 		return nil, fmt.Errorf("error creating tables: %v", err)
 	}
 
-	return &DB{db}, nil
+	return &DB{database}, nil
 }
 
-func createTables(db *sql.DB) error {
-	// Create sessions table
-	_, err := db.Exec(`
+// createTables creates the necessary database tables for the analytics system.
+// It creates tables for sessions and events if they don't already exist.
+func createTables(database *sql.DB) error {
+	// Create the sessions table to store user session information
+	_, err := database.Exec(`
 		CREATE TABLE IF NOT EXISTS sessions (
 			id INT AUTO_INCREMENT PRIMARY KEY,
 			session_id VARCHAR(255) NOT NULL UNIQUE,
@@ -50,8 +59,8 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
-	// Create events table
-	_, err = db.Exec(`
+	// Create the events table to store user interaction events
+	_, err = database.Exec(`
 		CREATE TABLE IF NOT EXISTS events (
 			id INT AUTO_INCREMENT PRIMARY KEY,
 			session_id VARCHAR(255) NOT NULL,

@@ -12,30 +12,34 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// main is the entry point of the analytics server application.
+// It initializes the server configuration, database connection,
+// and sets up the HTTP routes with middleware.
 func main() {
-	// Load environment variables
+	// Load environment variables from .env file if it exists
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found")
 	}
 
-	// Initialize configuration
-	cfg, err := config.Load()
+	// Load server configuration from environment variables
+	serverConfig, err := config.Load()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Initialize database connection
-	db, err := storage.InitDB(cfg)
+	// Initialize database connection with the loaded configuration
+	database, err := storage.InitDB(serverConfig)
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
-	defer db.Close()
+	defer database.Close()
 
-	// Initialize router
+	// Create and configure the HTTP router
 	router := gin.Default()
-	router.SetTrustedProxies([]string{"127.0.0.1"}) // Only trust localhost
 
-	// Add CORS middleware
+	router.SetTrustedProxies([]string{"127.0.0.1"}) // Only trust localhost for security
+
+	// Add CORS middleware to allow cross-origin requests
 	router.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -47,16 +51,16 @@ func main() {
 		c.Next()
 	})
 
-	// Setup all routes
-	api.SetupRoutes(router, db)
+	// Register all API routes with the router
+	api.SetupRoutes(router, database)
 
-	// Start server
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	// Start the HTTP server on the configured port
+	serverPort := os.Getenv("PORT")
+	if serverPort == "" {
+		serverPort = "8080" // Default port if not specified
 	}
-	log.Printf("Server starting on port %s", port)
-	if err := router.Run(":" + port); err != nil {
+	log.Printf("Server starting on port %s", serverPort)
+	if err := router.Run(":" + serverPort); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
