@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     resolution VARCHAR(50) NOT NULL,
     device_model VARCHAR(100),
     os_version VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create events table
