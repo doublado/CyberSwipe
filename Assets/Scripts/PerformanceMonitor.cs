@@ -6,20 +6,33 @@ using Newtonsoft.Json;
 
 namespace CyberSwipe
 {
+    /// <summary>
+    /// Monitors and tracks performance metrics of the game.
+    /// Collects data about FPS, memory usage, CPU/GPU usage, and network latency.
+    /// </summary>
     public class PerformanceMonitor : MonoBehaviour
     {
         private static PerformanceMonitor instance;
         public static PerformanceMonitor Instance => instance;
 
+        [Header("Monitoring Settings")]
+        [Tooltip("Interval in seconds between performance metric updates")]
         [SerializeField] private float updateInterval = 1.0f;
-        [SerializeField] private float networkCheckInterval = 5.0f; // Check network every 5 seconds
+        
+        [Tooltip("Interval in seconds between network latency checks")]
+        [SerializeField] private float networkCheckInterval = 5.0f;
+        
+        [Tooltip("Whether to enable performance metric logging")]
         [SerializeField] private bool enablePerformanceLogging = true;
 
+        // Performance metrics
         private float fps;
         private long memoryUsage;
         private float cpuUsage;
         private float gpuUsage;
         private int networkLatency;
+        
+        // Timing and state tracking
         private float lastUpdateTime;
         private float lastNetworkCheckTime;
         private Stopwatch stopwatch;
@@ -35,17 +48,25 @@ namespace CyberSwipe
             {
                 instance = this;
                 DontDestroyOnLoad(gameObject);
-                stopwatch = new Stopwatch();
-                lastCpuTime = Time.realtimeSinceStartup;
-                lastGpuTime = Time.realtimeSinceStartup;
-                
-                // Start checking for consent
-                StartCoroutine(WaitForConsent());
+                InitializePerformanceMonitoring();
             }
             else
             {
                 Destroy(gameObject);
             }
+        }
+
+        /// <summary>
+        /// Initializes the performance monitoring system.
+        /// </summary>
+        private void InitializePerformanceMonitoring()
+        {
+            stopwatch = new Stopwatch();
+            lastCpuTime = Time.realtimeSinceStartup;
+            lastGpuTime = Time.realtimeSinceStartup;
+            
+            // Start checking for consent
+            StartCoroutine(WaitForConsent());
         }
 
         private void Update()
@@ -71,6 +92,9 @@ namespace CyberSwipe
             gpuUsage = Mathf.Clamp((1f - frameTimeRatio) * 100f, 0f, 100f);
         }
 
+        /// <summary>
+        /// Waits for analytics consent before starting performance monitoring.
+        /// </summary>
         private IEnumerator WaitForConsent()
         {
             // Wait until the consent popup is no longer being displayed
@@ -93,6 +117,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Continuously updates and sends performance metrics.
+        /// </summary>
         private IEnumerator UpdateMetricsCoroutine()
         {
             while (isTracking)
@@ -111,6 +138,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Updates the current performance metrics.
+        /// </summary>
         private void UpdateMetrics()
         {
             if (!isTracking || !AnalyticsConsentPopup.IsAnalyticsEnabled()) return;
@@ -145,6 +175,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Measures the current network latency to the analytics server.
+        /// </summary>
         private IEnumerator MeasureNetworkLatency()
         {
             if (!isTracking || !AnalyticsConsentPopup.IsAnalyticsEnabled()) yield break;
@@ -166,6 +199,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Sends the current performance metrics to the analytics server.
+        /// </summary>
         private void SendMetrics()
         {
             if (!isTracking || !AnalyticsConsentPopup.IsAnalyticsEnabled()) return;
@@ -196,10 +232,29 @@ namespace CyberSwipe
             UnityEngine.Debug.Log("[Performance] Metrics sent to server");
         }
 
+        /// <summary>
+        /// Gets the current FPS value.
+        /// </summary>
         public float GetFPS() => fps;
+
+        /// <summary>
+        /// Gets the current memory usage in bytes.
+        /// </summary>
         public long GetMemoryUsage() => memoryUsage;
+
+        /// <summary>
+        /// Gets the current CPU usage percentage.
+        /// </summary>
         public float GetCPUUsage() => cpuUsage;
+
+        /// <summary>
+        /// Gets the current GPU usage percentage.
+        /// </summary>
         public float GetGPUUsage() => gpuUsage;
+
+        /// <summary>
+        /// Gets the current network latency in milliseconds.
+        /// </summary>
         public int GetNetworkLatency() => networkLatency;
     }
 } 

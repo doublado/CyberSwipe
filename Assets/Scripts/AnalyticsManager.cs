@@ -8,14 +8,22 @@ using Newtonsoft.Json;
 
 namespace CyberSwipe
 {
+    /// <summary>
+    /// Manages the communication with the analytics server.
+    /// Handles event queuing, retry logic, and server connection status.
+    /// </summary>
     public class AnalyticsManager : MonoBehaviour
     {
         private static AnalyticsManager instance;
         public static AnalyticsManager Instance => instance;
 
         [SerializeField] private AnalyticsSettings settings;
+        
+        // Session tracking
         private string sessionId;
         private bool isServerReachable = false;
+        
+        // Event queue management
         private Queue<AnalyticsEvent> eventQueue = new Queue<AnalyticsEvent>();
         private Coroutine sendQueueCoroutine;
         private bool lastRequestSuccess = false;
@@ -48,6 +56,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Checks if the analytics server is reachable.
+        /// </summary>
         private IEnumerator CheckServerConnection()
         {
             if (settings.enableDebugLogging)
@@ -77,6 +88,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Starts the coroutine for sending queued events.
+        /// </summary>
         private void StartSendingQueue()
         {
             if (sendQueueCoroutine == null)
@@ -85,6 +99,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Continuously processes the event queue and sends events to the server.
+        /// </summary>
         private IEnumerator SendQueueCoroutine()
         {
             while (true)
@@ -98,6 +115,12 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Tracks an analytics event and adds it to the queue.
+        /// </summary>
+        /// <param name="eventType">Type of the event to track</param>
+        /// <param name="eventData">Data associated with the event</param>
+        /// <param name="isSession">Whether this is a session-related event</param>
         public void TrackEvent(string eventType, Dictionary<string, object> eventData, bool isSession = false)
         {
             if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
@@ -131,6 +154,12 @@ namespace CyberSwipe
             eventQueue.Enqueue(analyticsEvent);
         }
 
+        /// <summary>
+        /// Sends an event to the server with retry logic.
+        /// </summary>
+        /// <param name="endpoint">The API endpoint to send the event to</param>
+        /// <param name="eventData">The event data to send</param>
+        /// <param name="isSession">Whether this is a session-related event</param>
         private IEnumerator SendEventWithRetry(string endpoint, Dictionary<string, object> eventData, bool isSession = false)
         {
             int retryCount = 0;
@@ -159,6 +188,12 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Sends a single event to the analytics server.
+        /// </summary>
+        /// <param name="endpoint">The API endpoint to send the event to</param>
+        /// <param name="eventData">The event data to send</param>
+        /// <param name="isSession">Whether this is a session-related event</param>
         private IEnumerator SendEvent(string endpoint, Dictionary<string, object> eventData, bool isSession = false)
         {
             lastRequestSuccess = false;
@@ -197,6 +232,12 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Gets the appropriate API endpoint for the given event type.
+        /// </summary>
+        /// <param name="eventType">Type of the event</param>
+        /// <param name="isSession">Whether this is a session-related event</param>
+        /// <returns>The API endpoint path</returns>
         private string GetEndpointForEventType(string eventType, bool isSession)
         {
             if (isSession)
@@ -217,8 +258,16 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Gets the server URL from the settings.
+        /// </summary>
+        /// <returns>The analytics server URL</returns>
         public string GetServerUrl() => settings.serverUrl;
 
+        /// <summary>
+        /// Generates a JWT token for authentication.
+        /// </summary>
+        /// <returns>A JWT token string</returns>
         private string GenerateJWT()
         {
             // In a real implementation, you would use a proper JWT library
@@ -241,6 +290,9 @@ namespace CyberSwipe
         }
     }
 
+    /// <summary>
+    /// Represents an analytics event to be sent to the server.
+    /// </summary>
     [Serializable]
     public class AnalyticsEvent
     {

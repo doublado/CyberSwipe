@@ -6,11 +6,16 @@ using Newtonsoft.Json;
 
 namespace CyberSwipe
 {
+    /// <summary>
+    /// Manages the collection and tracking of analytics data during gameplay.
+    /// Handles session management, event tracking, and performance metrics.
+    /// </summary>
     public class AnalyticsService : MonoBehaviour
     {
         private static AnalyticsService instance;
         public static AnalyticsService Instance => instance;
 
+        // Session tracking
         private string sessionId;
         private string userId;
         private float sessionStartTime;
@@ -20,6 +25,9 @@ namespace CyberSwipe
         private int totalSuccessfulDecisions;
         private Dictionary<string, CategoryStats> categoryStats = new Dictionary<string, CategoryStats>();
 
+        /// <summary>
+        /// Represents statistics for a specific category of cards.
+        /// </summary>
         public class CategoryStats
         {
             public int totalCards;
@@ -29,6 +37,9 @@ namespace CyberSwipe
             public float startTime;
         }
 
+        /// <summary>
+        /// Gets the current category statistics.
+        /// </summary>
         public Dictionary<string, CategoryStats> GetCategoryStats() => categoryStats;
 
         private void Awake()
@@ -54,14 +65,20 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Initializes a new analytics session with unique identifiers.
+        /// </summary>
         public void InitializeSession()
         {
             Debug.Log("[AnalyticsService] Initializing session");
+            
+            // Generate unique identifiers
             sessionId = Guid.NewGuid().ToString();
             userId = PlayerPrefs.GetString("AnalyticsUserId", Guid.NewGuid().ToString());
             PlayerPrefs.SetString("AnalyticsUserId", userId);
             PlayerPrefs.Save();
 
+            // Reset session metrics
             sessionStartTime = Time.time;
             totalCardsProcessed = 0;
             totalCategoriesCompleted = 0;
@@ -80,10 +97,19 @@ namespace CyberSwipe
                 { "os_version", SystemInfo.operatingSystem }
             };
 
-            AnalyticsManager.Instance.TrackEvent("session", sessionData, true);
+            AnalyticsManager.Instance.TrackEvent("session", sessionData, isSession: true);
             Debug.Log($"[AnalyticsService] Session initialized - SessionId: {sessionId}, UserId: {userId}");
         }
 
+        /// <summary>
+        /// Tracks a card swipe event with associated metrics.
+        /// </summary>
+        /// <param name="cardData">The card that was swiped</param>
+        /// <param name="duration">Time taken to complete the swipe</param>
+        /// <param name="maxRotation">Maximum rotation angle during swipe</param>
+        /// <param name="success">Whether the swipe was successful</param>
+        /// <param name="startPosition">Starting position of the swipe</param>
+        /// <param name="endPosition">Ending position of the swipe</param>
         public void TrackCardSwipe(CardData cardData, float duration, float maxRotation, bool success, Vector2 startPosition, Vector2 endPosition)
         {
             if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
@@ -91,10 +117,12 @@ namespace CyberSwipe
                 return;
             }
 
+            // Update session metrics
             totalCardsProcessed++;
             totalDecisionTime += duration;
             if (success) totalSuccessfulDecisions++;
 
+            // Update category-specific metrics
             string categoryName = cardData.cardCategory.ToString();
             if (!categoryStats.ContainsKey(categoryName))
             {
@@ -107,6 +135,7 @@ namespace CyberSwipe
             else stats.rejectedCards++;
             stats.totalDecisionTime += duration;
 
+            // Prepare event data
             var eventData = new Dictionary<string, object>
             {
                 { "session_id", sessionId },
@@ -124,6 +153,10 @@ namespace CyberSwipe
             AnalyticsManager.Instance.TrackEvent("card_swipe", eventData);
         }
 
+        /// <summary>
+        /// Resets the statistics for a specific category.
+        /// </summary>
+        /// <param name="categoryName">Name of the category to reset</param>
         private void ResetCategoryStats(string categoryName)
         {
             if (categoryStats.ContainsKey(categoryName))
@@ -133,6 +166,10 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Tracks the completion of a category with its associated statistics.
+        /// </summary>
+        /// <param name="categoryName">Name of the completed category</param>
         public void TrackCategoryCompletion(string categoryName)
         {
             if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
@@ -168,6 +205,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Ends the current analytics session and sends final statistics.
+        /// </summary>
         public void EndSession()
         {
             if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
@@ -193,6 +233,10 @@ namespace CyberSwipe
             AnalyticsManager.Instance.TrackEvent("session_end", sessionData);
         }
 
+        /// <summary>
+        /// Gets the current session ID.
+        /// </summary>
+        /// <returns>The unique identifier for the current session</returns>
         public string GetSessionId() => sessionId;
     }
 } 

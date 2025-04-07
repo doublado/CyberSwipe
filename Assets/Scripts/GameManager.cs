@@ -5,20 +5,39 @@ using System.Linq;
 
 namespace CyberSwipe
 {
+    /// <summary>
+    /// Manages the core game logic, including card deck management, category progression, and game state.
+    /// Handles the initialization of new categories, card spawning, and game completion.
+    /// </summary>
     public class GameManager : MonoBehaviour
     {
         [Header("Game Settings")]
+        [Tooltip("List of all available cards in the game")]
         [SerializeField] private List<CardData> cardDeck = new List<CardData>();
+        
+        [Tooltip("Prefab used for instantiating new cards")]
         [SerializeField] private GameObject cardPrefab;
+        
+        [Tooltip("Transform where new cards will be spawned")]
         [SerializeField] private Transform cardSpawnPoint;
+        
+        [Tooltip("Number of cards to show per category")]
         [SerializeField] private int cardsPerCategory = 5;
 
         [Header("UI References")]
+        [Tooltip("GameObject containing the end screen UI")]
         [SerializeField] private GameObject endScreen;
+        
+        [Tooltip("Text component for the end screen title")]
         [SerializeField] private TextMeshProUGUI endScreenTitle;
+        
+        [Tooltip("Text component for displaying card outcomes")]
         [SerializeField] private TextMeshProUGUI endScreenOutcome;
+        
+        [Tooltip("Text component for displaying revenue impact")]
         [SerializeField] private TextMeshProUGUI endScreenRevenue;
 
+        // Game state tracking
         private List<CardData.Category> completedCategories = new List<CardData.Category>();
         private List<CardData> currentCategoryCards = new List<CardData>();
         private List<string> decisionOutcomes = new List<string>();
@@ -42,6 +61,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Starts the game if it hasn't already been started.
+        /// </summary>
         public void StartGame()
         {
             if (gameStarted) return;
@@ -51,6 +73,9 @@ namespace CyberSwipe
             StartNewCategory();
         }
 
+        /// <summary>
+        /// Initializes a new category of cards and prepares for gameplay.
+        /// </summary>
         private void StartNewCategory()
         {
             decisionOutcomes.Clear();
@@ -79,6 +104,10 @@ namespace CyberSwipe
             LoadCategoryCards();
         }
 
+        /// <summary>
+        /// Selects a random category that hasn't been completed yet.
+        /// </summary>
+        /// <returns>True if a valid category was selected, false otherwise</returns>
         private bool SelectRandomCategory()
         {
             // Get all categories that have cards in the deck
@@ -108,6 +137,9 @@ namespace CyberSwipe
             return true;
         }
 
+        /// <summary>
+        /// Loads and shuffles cards for the current category.
+        /// </summary>
         private void LoadCategoryCards()
         {
             currentCategoryCards.Clear();
@@ -137,6 +169,9 @@ namespace CyberSwipe
             SpawnNextCard();
         }
 
+        /// <summary>
+        /// Spawns the next card in the current category.
+        /// </summary>
         public void SpawnNextCard()
         {
             if (currentCategoryCards.Count == 0)
@@ -153,6 +188,11 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Handles the decision made on a card (accept or deny).
+        /// </summary>
+        /// <param name="wasAccepted">Whether the card was accepted or denied</param>
+        /// <param name="cardData">The card data that was decided upon</param>
         public void HandleCardDecision(bool wasAccepted, CardData cardData)
         {
             string outcome = wasAccepted ? cardData.acceptOutcome : cardData.denyOutcome;
@@ -166,6 +206,9 @@ namespace CyberSwipe
             SpawnNextCard();
         }
 
+        /// <summary>
+        /// Displays the end screen with category completion information.
+        /// </summary>
         private void ShowEndScreen()
         {
             endScreen.SetActive(true);
@@ -201,9 +244,14 @@ namespace CyberSwipe
             // Mark category as completed and track analytics
             completedCategories.Add(currentCategory);
             OnCategoryCompleted(currentCategory.ToString());
-            UnityEngine.Debug.Log($"[GameManager] Category completed: {currentCategory}");
+            Debug.Log($"[GameManager] Category completed: {currentCategory}");
         }
 
+        /// <summary>
+        /// Gets the Danish name for a given category.
+        /// </summary>
+        /// <param name="category">The category to get the name for</param>
+        /// <returns>The Danish name of the category</returns>
         private string GetCategoryNameInDanish(CardData.Category category)
         {
             switch (category)
@@ -223,12 +271,18 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Continues to the next category after completing the current one.
+        /// </summary>
         public void ContinueToNextCategory()
         {
             endScreen.SetActive(false);
             StartNewCategory();
         }
 
+        /// <summary>
+        /// Shuffles the card deck using the Fisher-Yates algorithm.
+        /// </summary>
         private void ShuffleDeck()
         {
             // Fisher-Yates shuffle algorithm
@@ -241,6 +295,10 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Called when a category is completed to track analytics.
+        /// </summary>
+        /// <param name="categoryName">Name of the completed category</param>
         public void OnCategoryCompleted(string categoryName)
         {
             if (AnalyticsService.Instance != null && AnalyticsConsentPopup.IsAnalyticsEnabled())

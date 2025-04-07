@@ -5,18 +5,33 @@ using System.Collections;
 
 namespace CyberSwipe
 {
+    /// <summary>
+    /// Manages the interaction and behavior of cards in the game.
+    /// Handles drag and drop functionality, swipe detection, and card decision processing.
+    /// </summary>
     public class CardManager : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         [Header("Card Settings")]
+        [Tooltip("Minimum distance required for a swipe to be registered")]
         [SerializeField] private float swipeThreshold = 200f;
+        
+        [Tooltip("Multiplier for card rotation during swipe")]
         [SerializeField] private float rotationMultiplier = 0.1f;
+        
+        [Tooltip("Speed at which the card returns to center when released")]
         [SerializeField] private float returnSpeed = 10f;
 
         [Header("Visual Feedback")]
+        [Tooltip("Color of the glow effect when swiping left (deny)")]
         [SerializeField] private Color denyColor = new Color(1f, 0.2f, 0.2f, 0.5f);
+        
+        [Tooltip("Color of the glow effect when swiping right (accept)")]
         [SerializeField] private Color acceptColor = new Color(0.2f, 1f, 0.2f, 0.5f);
+        
+        [Tooltip("Maximum alpha value for the glow effect")]
         [SerializeField] private float maxGlowAlpha = 0.8f;
 
+        // Component references
         private RectTransform rectTransform;
         private Vector2 startPosition;
         private bool isDragging = false;
@@ -24,6 +39,8 @@ namespace CyberSwipe
         private GameManager gameManager;
         private CardAnimationHandler animationHandler;
         private Image cardImage;
+        
+        // Swipe tracking
         private float swipeStartTime;
         private float maxRotationReached;
 
@@ -36,6 +53,10 @@ namespace CyberSwipe
             cardImage = GetComponent<Image>();
         }
 
+        /// <summary>
+        /// Called when the user starts dragging the card.
+        /// </summary>
+        /// <param name="eventData">Event data containing drag information</param>
         public void OnBeginDrag(PointerEventData eventData)
         {
             isDragging = true;
@@ -44,6 +65,10 @@ namespace CyberSwipe
             maxRotationReached = 0f;
         }
 
+        /// <summary>
+        /// Called while the user is dragging the card.
+        /// </summary>
+        /// <param name="eventData">Event data containing drag information</param>
         public void OnDrag(PointerEventData eventData)
         {
             if (!isDragging) return;
@@ -64,6 +89,10 @@ namespace CyberSwipe
             UpdateVisualFeedback(currentPosition.x);
         }
 
+        /// <summary>
+        /// Updates the visual feedback (glow effect) based on the current drag position.
+        /// </summary>
+        /// <param name="currentX">Current x position of the card</param>
         private void UpdateVisualFeedback(float currentX)
         {
             if (cardDisplay == null) return;
@@ -87,6 +116,10 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Called when the user stops dragging the card.
+        /// </summary>
+        /// <param name="eventData">Event data containing drag information</param>
         public void OnEndDrag(PointerEventData eventData)
         {
             isDragging = false;
@@ -150,6 +183,10 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Handles the card decision after a successful swipe.
+        /// </summary>
+        /// <param name="wasAccepted">Whether the card was accepted (swiped right) or denied (swiped left)</param>
         private void HandleCardDecision(bool wasAccepted)
         {
             CardData cardData = cardDisplay.GetCardData();
@@ -181,6 +218,9 @@ namespace CyberSwipe
             }
         }
 
+        /// <summary>
+        /// Returns the card to its center position with animation.
+        /// </summary>
         private IEnumerator ReturnToCenterCoroutine()
         {
             Vector2 currentPosition = rectTransform.anchoredPosition;
