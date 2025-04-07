@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"time"
 
 	"bytes"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -139,45 +140,206 @@ func (h *AnalyticsHandler) getStats(c *gin.Context) {
 		return
 	}
 
-	// Get session statistics
-	var totalSessions int
-	var avgSessionDuration float64
-	err := h.db.QueryRow(`
+	// Get all sessions
+	sessionRows, err := h.db.Query(`
 		SELECT 
-			COUNT(*) as total_sessions,
-			AVG(session_duration) as avg_duration
+			session_id,
+			user_id,
+			platform,
+			resolution,
+			device_model,
+			os_version,
+			created_at
 		FROM sessions
-		WHERE ended_at IS NOT NULL
-	`).Scan(&totalSessions, &avgSessionDuration)
+		ORDER BY created_at DESC
+	`)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get session statistics"})
+		fmt.Printf("[Server] Error getting sessions: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get sessions"})
 		return
 	}
+	defer sessionRows.Close()
 
-	// Get performance metrics
-	var avgFPS float64
-	var avgMemoryUsage float64
-	var avgCPUUsage float64
-	var avgGPUUsage float64
-	var avgNetworkLatency float64
-	err = h.db.QueryRow(`
+	var sessions []map[string]interface{}
+	for sessionRows.Next() {
+		var sessionID, userID, platform, resolution, deviceModel, osVersion string
+		var createdAt time.Time
+		err := sessionRows.Scan(&sessionID, &userID, &platform, &resolution, &deviceModel, &osVersion, &createdAt)
+		if err != nil {
+			fmt.Printf("[Server] Error scanning session row: %v\n", err)
+			continue
+		}
+		sessions = append(sessions, map[string]interface{}{
+			"session_id":   sessionID,
+			"user_id":      userID,
+			"platform":     platform,
+			"resolution":   resolution,
+			"device_model": deviceModel,
+			"os_version":   osVersion,
+			"created_at":   createdAt,
+		})
+	}
+
+	// Get all performance metrics
+	perfRows, err := h.db.Query(`
 		SELECT 
-			AVG(fps) as avg_fps,
-			AVG(memory_usage) as avg_memory,
-			AVG(cpu_usage) as avg_cpu,
-			AVG(gpu_usage) as avg_gpu,
-			AVG(network_latency) as avg_latency
+			session_id,
+			fps,
+			memory_usage,
+			cpu_usage,
+			gpu_usage,
+			network_latency,
+			timestamp
 		FROM performance_metrics
-	`).Scan(&avgFPS, &avgMemoryUsage, &avgCPUUsage, &avgGPUUsage, &avgNetworkLatency)
+		ORDER BY timestamp DESC
+	`)
 	if err != nil {
+		fmt.Printf("[Server] Error getting performance metrics: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get performance metrics"})
 		return
 	}
+	defer perfRows.Close()
 
-	// Get card swipe statistics
+	var performanceMetrics []map[string]interface{}
+	for perfRows.Next() {
+		var sessionID string
+		var fps, memoryUsage, cpuUsage, gpuUsage, networkLatency float64
+		var timestamp time.Time
+		err := perfRows.Scan(&sessionID, &fps, &memoryUsage, &cpuUsage, &gpuUsage, &networkLatency, &timestamp)
+		if err != nil {
+			fmt.Printf("[Server] Error scanning performance row: %v\n", err)
+			continue
+		}
+		performanceMetrics = append(performanceMetrics, map[string]interface{}{
+			"session_id":      sessionID,
+			"fps":             fps,
+			"memory_usage":    memoryUsage,
+			"cpu_usage":       cpuUsage,
+			"gpu_usage":       gpuUsage,
+			"network_latency": networkLatency,
+			"timestamp":       timestamp,
+		})
+	}
+
+	// Get all events
+	eventRows, err := h.db.Query(`
+		SELECT 
+			session_id,
+			event_type,
+			card_id,
+			direction,
+			success,
+			duration,
+			start_x,
+			end_x,
+			max_rotation,
+			created_at
+		FROM events
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		fmt.Printf("[Server] Error getting events: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get events"})
+		return
+	}
+	defer eventRows.Close()
+
+	var events []map[string]interface{}
+	for eventRows.Next() {
+		var sessionID, eventType, cardID, direction string
+		var success bool
+		var duration, startX, endX, maxRotation float64
+		var createdAt time.Time
+		err := eventRows.Scan(&sessionID, &eventType, &cardID, &direction, &success, &duration, &startX, &endX, &maxRotation, &createdAt)
+		if err != nil {
+			fmt.Printf("[Server] Error scanning event row: %v\n", err)
+			continue
+		}
+		events = append(events, map[string]interface{}{
+			"session_id":   sessionID,
+			"event_type":   eventType,
+			"card_id":      cardID,
+			"direction":    direction,
+			"success":      success,
+			"duration":     duration,
+			"start_x":      startX,
+			"end_x":        endX,
+			"max_rotation": maxRotation,
+			"created_at":   createdAt,
+		})
+	}
+
+	// Get all category stats
+	categoryRows, err := h.db.Query(`
+		SELECT 
+			session_id,
+			category_name,
+			total_cards,
+			accepted_cards,
+			rejected_cards,
+			average_decision_time,
+			completion_time,
+			created_at
+		FROM category_stats
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		fmt.Printf("[Server] Error getting category stats: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get category stats"})
+		return
+	}
+	defer categoryRows.Close()
+
+	var categoryStats []map[string]interface{}
+	for categoryRows.Next() {
+		var sessionID, categoryName string
+		var totalCards, acceptedCards, rejectedCards int
+		var avgDecisionTime, completionTime float64
+		var createdAt time.Time
+		err := categoryRows.Scan(&sessionID, &categoryName, &totalCards, &acceptedCards, &rejectedCards, &avgDecisionTime, &completionTime, &createdAt)
+		if err != nil {
+			fmt.Printf("[Server] Error scanning category row: %v\n", err)
+			continue
+		}
+		categoryStats = append(categoryStats, map[string]interface{}{
+			"session_id":            sessionID,
+			"category_name":         categoryName,
+			"total_cards":           totalCards,
+			"accepted_cards":        acceptedCards,
+			"rejected_cards":        rejectedCards,
+			"average_decision_time": avgDecisionTime,
+			"completion_time":       completionTime,
+			"created_at":            createdAt,
+		})
+	}
+
+	// Get aggregated statistics
+	var totalSessions int
+	var avgFPS, avgMemoryUsage, avgCPUUsage, avgGPUUsage, avgNetworkLatency float64
 	var totalSwipes int
-	var avgSwipeDuration float64
-	var successRate float64
+	var avgSwipeDuration, successRate float64
+
+	// Get session count
+	err = h.db.QueryRow(`SELECT COUNT(*) FROM sessions`).Scan(&totalSessions)
+	if err != nil {
+		fmt.Printf("[Server] Error getting total sessions: %v\n", err)
+	}
+
+	// Get average performance metrics
+	err = h.db.QueryRow(`
+		SELECT 
+			AVG(fps),
+			AVG(memory_usage),
+			AVG(cpu_usage),
+			AVG(gpu_usage),
+			AVG(network_latency)
+		FROM performance_metrics
+	`).Scan(&avgFPS, &avgMemoryUsage, &avgCPUUsage, &avgGPUUsage, &avgNetworkLatency)
+	if err != nil {
+		fmt.Printf("[Server] Error getting average performance metrics: %v\n", err)
+	}
+
+	// Get swipe statistics
 	err = h.db.QueryRow(`
 		SELECT 
 			COUNT(*) as total_swipes,
@@ -187,66 +349,34 @@ func (h *AnalyticsHandler) getStats(c *gin.Context) {
 		WHERE event_type = 'card_swipe'
 	`).Scan(&totalSwipes, &avgSwipeDuration, &successRate)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get swipe statistics"})
-		return
+		fmt.Printf("[Server] Error getting swipe statistics: %v\n", err)
 	}
 
-	// Get category statistics
-	rows, err := h.db.Query(`
-		SELECT 
-			category_name,
-			COUNT(*) as total_cards,
-			SUM(accepted_cards) as total_accepted,
-			SUM(rejected_cards) as total_rejected,
-			AVG(average_decision_time) as avg_decision_time,
-			AVG(completion_time) as avg_completion_time
-		FROM category_stats
-		GROUP BY category_name
-	`)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get category statistics"})
-		return
-	}
-	defer rows.Close()
-
-	var categoryStats []map[string]interface{}
-	for rows.Next() {
-		var categoryName string
-		var totalCards, totalAccepted, totalRejected int
-		var avgDecisionTime, avgCompletionTime float64
-		err := rows.Scan(&categoryName, &totalCards, &totalAccepted, &totalRejected, &avgDecisionTime, &avgCompletionTime)
-		if err != nil {
-			continue
-		}
-		categoryStats = append(categoryStats, map[string]interface{}{
-			"category_name":       categoryName,
-			"total_cards":         totalCards,
-			"total_accepted":      totalAccepted,
-			"total_rejected":      totalRejected,
-			"avg_decision_time":   avgDecisionTime,
-			"avg_completion_time": avgCompletionTime,
-		})
-	}
-
-	// Return comprehensive statistics
+	// Return comprehensive data
 	c.JSON(http.StatusOK, gin.H{
-		"sessions": gin.H{
-			"total_sessions":       totalSessions,
-			"avg_session_duration": avgSessionDuration,
+		"raw_data": gin.H{
+			"sessions":            sessions,
+			"performance_metrics": performanceMetrics,
+			"events":              events,
+			"category_stats":      categoryStats,
 		},
-		"performance": gin.H{
-			"avg_fps":             avgFPS,
-			"avg_memory_usage":    avgMemoryUsage,
-			"avg_cpu_usage":       avgCPUUsage,
-			"avg_gpu_usage":       avgGPUUsage,
-			"avg_network_latency": avgNetworkLatency,
+		"statistics": gin.H{
+			"sessions": gin.H{
+				"total_sessions": totalSessions,
+			},
+			"performance": gin.H{
+				"avg_fps":             avgFPS,
+				"avg_memory_usage":    avgMemoryUsage,
+				"avg_cpu_usage":       avgCPUUsage,
+				"avg_gpu_usage":       avgGPUUsage,
+				"avg_network_latency": avgNetworkLatency,
+			},
+			"card_swipes": gin.H{
+				"total_swipes":       totalSwipes,
+				"avg_swipe_duration": avgSwipeDuration,
+				"success_rate":       successRate,
+			},
 		},
-		"card_swipes": gin.H{
-			"total_swipes":       totalSwipes,
-			"avg_swipe_duration": avgSwipeDuration,
-			"success_rate":       successRate,
-		},
-		"categories": categoryStats,
 	})
 }
 
