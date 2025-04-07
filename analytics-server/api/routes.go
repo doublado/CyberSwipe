@@ -138,11 +138,9 @@ func (h *AnalyticsHandler) recordEvent(c *gin.Context) {
 	// Log the raw request body for debugging
 	requestBody, err := c.GetRawData()
 	if err != nil {
-		fmt.Printf("[Server] Error reading request body: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
 	}
-	fmt.Printf("[Server] Received request body: %s\n", string(requestBody))
 
 	// Reset the request body for binding
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
@@ -150,13 +148,9 @@ func (h *AnalyticsHandler) recordEvent(c *gin.Context) {
 	var event EventRequest
 
 	if err := c.ShouldBindJSON(&event); err != nil {
-		fmt.Printf("[Server] Validation error: %v\n", err)
-		fmt.Printf("[Server] Event data: %+v\n", event)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	fmt.Printf("[Server] Successfully parsed event: %+v\n", event)
 
 	_, err = h.db.Exec(`
 		INSERT INTO events (
@@ -170,12 +164,10 @@ func (h *AnalyticsHandler) recordEvent(c *gin.Context) {
 	)
 
 	if err != nil {
-		fmt.Printf("[Server] Database error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to record event"})
 		return
 	}
 
-	fmt.Printf("[Server] Successfully recorded event\n")
 	c.JSON(http.StatusCreated, gin.H{"status": "success"})
 }
 

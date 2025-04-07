@@ -48,11 +48,9 @@ namespace CyberSwipe
             {
                 instance = this;
                 DontDestroyOnLoad(gameObject);
-                UnityEngine.Debug.Log("[AnalyticsService] Initialized new instance");
             }
             else if (instance != this)
             {
-                UnityEngine.Debug.Log("[AnalyticsService] Destroying duplicate instance");
                 Destroy(gameObject);
             }
         }
@@ -70,8 +68,6 @@ namespace CyberSwipe
         /// </summary>
         public void InitializeSession()
         {
-            Debug.Log("[AnalyticsService] Initializing session");
-            
             // Generate unique identifiers
             sessionId = Guid.NewGuid().ToString();
             userId = PlayerPrefs.GetString("AnalyticsUserId", Guid.NewGuid().ToString());
@@ -98,7 +94,6 @@ namespace CyberSwipe
             };
 
             AnalyticsManager.Instance.TrackEvent("session", sessionData, isSession: true);
-            Debug.Log($"[AnalyticsService] Session initialized - SessionId: {sessionId}, UserId: {userId}");
         }
 
         /// <summary>
@@ -162,7 +157,6 @@ namespace CyberSwipe
             if (categoryStats.ContainsKey(categoryName))
             {
                 categoryStats[categoryName] = new CategoryStats { startTime = Time.time };
-                UnityEngine.Debug.Log($"[Analytics] Reset stats for category: {categoryName}");
             }
         }
 
@@ -190,18 +184,11 @@ namespace CyberSwipe
                     { "completion_time", (int)(Time.time - stats.startTime) }
                 };
 
-                UnityEngine.Debug.Log($"[Analytics] Sending category completion data: {JsonConvert.SerializeObject(categoryData)}");
                 AnalyticsManager.Instance.TrackEvent("category", categoryData);
                 totalCategoriesCompleted++;
 
-                UnityEngine.Debug.Log($"[Analytics] Category {categoryName} completed. Stats: {JsonConvert.SerializeObject(categoryData)}");
-                
                 // Reset stats for this category after tracking completion
                 ResetCategoryStats(categoryName);
-            }
-            else
-            {
-                UnityEngine.Debug.LogWarning($"[Analytics] No stats found for category: {categoryName}");
             }
         }
 
@@ -229,7 +216,6 @@ namespace CyberSwipe
                 { "success_rate", Mathf.Round(successRate * 100f) / 100f }
             };
 
-            UnityEngine.Debug.Log($"[Analytics] Ending session with data: {JsonConvert.SerializeObject(sessionData)}");
             AnalyticsManager.Instance.TrackEvent("session_end", sessionData);
         }
 

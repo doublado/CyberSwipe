@@ -22,9 +22,6 @@ namespace CyberSwipe
         [Tooltip("Interval in seconds between network latency checks")]
         [SerializeField] private float networkCheckInterval = 5.0f;
         
-        [Tooltip("Whether to enable performance metric logging")]
-        [SerializeField] private bool enablePerformanceLogging = true;
-
         // Performance metrics
         private float fps;
         private long memoryUsage;
@@ -100,7 +97,6 @@ namespace CyberSwipe
             // Wait until the consent popup is no longer being displayed
             while (AnalyticsConsentPopup.Instance != null && AnalyticsConsentPopup.Instance.IsPopupActive())
             {
-                UnityEngine.Debug.Log("[PerformanceMonitor] Waiting for consent popup to be closed...");
                 yield return new WaitForSeconds(1f);
             }
 
@@ -109,11 +105,6 @@ namespace CyberSwipe
             {
                 isTracking = true;
                 StartCoroutine(UpdateMetricsCoroutine());
-                UnityEngine.Debug.Log("[PerformanceMonitor] Started tracking after consent received");
-            }
-            else
-            {
-                UnityEngine.Debug.Log("[PerformanceMonitor] Analytics not enabled, not starting tracking");
             }
         }
 
@@ -127,7 +118,6 @@ namespace CyberSwipe
                 // Check if analytics is still enabled
                 if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
                 {
-                    UnityEngine.Debug.Log("[PerformanceMonitor] Analytics disabled, stopping tracking");
                     isTracking = false;
                     yield break;
                 }
@@ -168,11 +158,6 @@ namespace CyberSwipe
                 StartCoroutine(MeasureNetworkLatency());
                 lastNetworkCheckTime = Time.time;
             }
-
-            if (enablePerformanceLogging)
-            {
-                UnityEngine.Debug.Log($"[Performance] FPS: {fps:F0}, Memory: {memoryUsage / 1024 / 1024:F1}MB, CPU: {cpuUsage:F1}%, GPU: {gpuUsage:F1}%");
-            }
         }
 
         /// <summary>
@@ -191,11 +176,6 @@ namespace CyberSwipe
                 yield return request.SendWebRequest();
                 stopwatch.Stop();
                 networkLatency = (int)stopwatch.ElapsedMilliseconds;
-                
-                if (enablePerformanceLogging)
-                {
-                    UnityEngine.Debug.Log($"[Performance] Network latency: {networkLatency}ms");
-                }
             }
         }
 
@@ -209,7 +189,6 @@ namespace CyberSwipe
             string sessionId = AnalyticsService.Instance?.GetSessionId();
             if (string.IsNullOrEmpty(sessionId))
             {
-                UnityEngine.Debug.LogWarning("[PerformanceMonitor] Cannot send metrics: No valid session ID");
                 return;
             }
 
@@ -223,13 +202,7 @@ namespace CyberSwipe
                 { "network_latency", networkLatency }
             };
 
-            if (enablePerformanceLogging)
-            {
-                UnityEngine.Debug.Log($"[Performance] Sending metrics: {JsonConvert.SerializeObject(metrics)}");
-            }
-
             AnalyticsManager.Instance.TrackEvent("performance", metrics);
-            UnityEngine.Debug.Log("[Performance] Metrics sent to server");
         }
 
         /// <summary>

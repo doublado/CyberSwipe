@@ -83,7 +83,6 @@ namespace CyberSwipe
             
             if (!SelectRandomCategory())
             {
-                Debug.LogError("No valid categories with cards available!");
                 return;
             }
             
@@ -97,7 +96,6 @@ namespace CyberSwipe
                     { 
                         startTime = Time.time 
                     };
-                    Debug.Log($"[GameManager] Initialized stats for category: {categoryName}");
                 }
             }
             
@@ -129,7 +127,6 @@ namespace CyberSwipe
 
             if (categoriesWithCards.Count == 0)
             {
-                Debug.LogError("No cards found in the deck!");
                 return false;
             }
 
@@ -152,7 +149,6 @@ namespace CyberSwipe
 
             if (categoryCards.Count == 0)
             {
-                Debug.LogError($"No cards found for category {currentCategory}");
                 completedCategories.Add(currentCategory);
                 if (SelectRandomCategory())
                 {
@@ -244,7 +240,6 @@ namespace CyberSwipe
             // Mark category as completed and track analytics
             completedCategories.Add(currentCategory);
             OnCategoryCompleted(currentCategory.ToString());
-            Debug.Log($"[GameManager] Category completed: {currentCategory}");
         }
 
         /// <summary>
@@ -311,7 +306,6 @@ namespace CyberSwipe
         {
             if (!sessionEnded)
             {
-                Debug.Log("[GameManager] Application quitting, ending analytics session");
                 if (AnalyticsConsentPopup.IsAnalyticsEnabled())
                 {
                     AnalyticsService.Instance.EndSession();
@@ -324,7 +318,6 @@ namespace CyberSwipe
         {
             if (!sessionEnded)
             {
-                Debug.Log("[GameManager] GameManager destroyed, ending analytics session");
                 if (AnalyticsConsentPopup.IsAnalyticsEnabled())
                 {
                     AnalyticsService.Instance.EndSession();

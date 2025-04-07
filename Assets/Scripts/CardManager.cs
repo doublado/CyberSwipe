@@ -136,16 +136,12 @@ namespace CyberSwipe
             {
                 bool wasAccepted = swipeDistance > 0;
                 float swipeDuration = Time.time - swipeStartTime;
-                
-                Debug.Log($"[CardManager] Card swiped - Distance: {swipeDistance}, Accepted: {wasAccepted}");
-                
+                                
                 // Track analytics before handling the card decision
                 if (AnalyticsConsentPopup.IsAnalyticsEnabled())
                 {
-                    Debug.Log("[CardManager] Analytics enabled, attempting to track swipe");
                     if (AnalyticsService.Instance != null)
                     {
-                        Debug.Log("[CardManager] AnalyticsService instance found, tracking swipe");
                         AnalyticsService.Instance.TrackCardSwipe(
                             cardDisplay.GetCardData(),
                             swipeDuration,
@@ -155,21 +151,12 @@ namespace CyberSwipe
                             rectTransform.anchoredPosition
                         );
                     }
-                    else
-                    {
-                        Debug.LogError("[CardManager] AnalyticsService instance is null!");
-                    }
-                }
-                else
-                {
-                    Debug.Log("[CardManager] Analytics not enabled, skipping tracking");
                 }
                 
                 HandleCardDecision(wasAccepted);
             }
             else
             {
-                Debug.Log("[CardManager] Swipe distance too small, returning to center");
                 // Always recenter the card if it's not swiped far enough
                 if (animationHandler != null)
                 {

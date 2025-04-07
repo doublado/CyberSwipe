@@ -34,17 +34,11 @@ namespace CyberSwipe
             {
                 instance = this;
                 DontDestroyOnLoad(gameObject);
-                UnityEngine.Debug.Log("[AnalyticsManager] Awake called");
 
                 // Create AnalyticsService if it doesn't exist
                 if (AnalyticsService.Instance == null)
                 {
                     var service = gameObject.AddComponent<AnalyticsService>();
-                    UnityEngine.Debug.Log($"[AnalyticsManager] Added AnalyticsService component: {service != null}");
-                }
-                else
-                {
-                    UnityEngine.Debug.Log("[AnalyticsManager] AnalyticsService already exists");
                 }
 
                 sessionId = Guid.NewGuid().ToString();
@@ -61,11 +55,6 @@ namespace CyberSwipe
         /// </summary>
         private IEnumerator CheckServerConnection()
         {
-            if (settings.enableDebugLogging)
-            {
-                Debug.Log("[Analytics] Checking server connection...");
-            }
-
             using (UnityWebRequest request = UnityWebRequest.Get($"{settings.serverUrl}/health"))
             {
                 request.timeout = (int)settings.requestTimeout;
@@ -74,16 +63,11 @@ namespace CyberSwipe
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     isServerReachable = true;
-                    if (settings.enableDebugLogging)
-                    {
-                        Debug.Log("[Analytics] Server connection successful");
-                    }
                     StartSendingQueue();
                 }
                 else
                 {
                     isServerReachable = false;
-                    Debug.LogWarning($"[Analytics] Server connection failed: {request.error}");
                 }
             }
         }
@@ -125,16 +109,7 @@ namespace CyberSwipe
         {
             if (!AnalyticsConsentPopup.IsAnalyticsEnabled())
             {
-                Debug.Log("[Analytics] Analytics not enabled, skipping event tracking");
                 return;
-            }
-
-            if (!isServerReachable)
-            {
-                if (settings.enableDebugLogging)
-                {
-                    Debug.Log($"[Analytics] Server not reachable, event queued: {eventType}");
-                }
             }
 
             var analyticsEvent = new AnalyticsEvent
@@ -145,11 +120,6 @@ namespace CyberSwipe
                 data = eventData ?? new Dictionary<string, object>(),
                 isSession = isSession
             };
-
-            if (eventType == "session_end")
-            {
-                Debug.Log($"[Analytics] Sending session end event: {JsonConvert.SerializeObject(analyticsEvent)}");
-            }
 
             eventQueue.Enqueue(analyticsEvent);
         }
@@ -177,14 +147,8 @@ namespace CyberSwipe
                 retryCount++;
                 if (retryCount < maxRetries)
                 {
-                    Debug.Log($"[Analytics] Retrying event send ({retryCount}/{maxRetries})");
                     yield return new WaitForSeconds(retryDelay);
                 }
-            }
-
-            if (!lastRequestSuccess)
-            {
-                Debug.LogWarning("[Analytics] Failed to send event after 3 retries");
             }
         }
 
@@ -199,13 +163,9 @@ namespace CyberSwipe
             lastRequestSuccess = false;
             string jsonData = JsonConvert.SerializeObject(eventData);
 
-            // Ensure the server URL doesn't end with a slash and the endpoint starts with one
             string baseUrl = settings.serverUrl.TrimEnd('/');
             string fullEndpoint = GetEndpointForEventType(endpoint, isSession);
             string fullUrl = baseUrl + fullEndpoint;
-
-            Debug.Log($"[Analytics] Sending request to: {fullUrl}");
-            Debug.Log($"[Analytics] Request data: {jsonData}");
 
             using (UnityWebRequest request = new UnityWebRequest(fullUrl, "POST"))
             {
@@ -219,15 +179,6 @@ namespace CyberSwipe
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     lastRequestSuccess = true;
-                    Debug.Log($"[Analytics] Event sent successfully to {fullUrl}");
-                }
-                else
-                {
-                    Debug.LogWarning($"[Analytics] Failed to send event: {request.error}");
-                    if (request.downloadHandler != null && !string.IsNullOrEmpty(request.downloadHandler.text))
-                    {
-                        Debug.LogWarning($"[Analytics] Server response: {request.downloadHandler.text}");
-                    }
                 }
             }
         }
@@ -270,8 +221,6 @@ namespace CyberSwipe
         /// <returns>A JWT token string</returns>
         private string GenerateJWT()
         {
-            // In a real implementation, you would use a proper JWT library
-            // This is a simplified version for demonstration
             var header = new { alg = "HS256", typ = "JWT" };
             var payload = new { 
                 sub = "game-client",

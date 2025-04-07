@@ -48,17 +48,12 @@ namespace CyberSwipe
 
         private void Awake()
         {
-            Debug.Log("[AnalyticsConsentPopup] Initializing popup");
-            
-            // Handle singleton pattern
             if (instance == null)
             {
                 instance = this;
-                Debug.Log("[AnalyticsConsentPopup] Set as singleton instance");
             }
             else
             {
-                Debug.Log("[AnalyticsConsentPopup] Destroying duplicate instance");
                 Destroy(gameObject);
                 return;
             }
@@ -73,15 +68,7 @@ namespace CyberSwipe
         /// </summary>
         private void ValidateComponentReferences()
         {
-            Debug.Log($"[AnalyticsConsentPopup] Validating component references:");
-            Debug.Log($"- Popup Panel: {(popupPanel != null ? "Set" : "Null")}");
-            Debug.Log($"- Title Text: {(titleText != null ? "Set" : "Null")}");
-            Debug.Log($"- Description Text: {(descriptionText != null ? "Set" : "Null")}");
-            Debug.Log($"- Accept Button: {(acceptButton != null ? "Set" : "Null")}");
-            Debug.Log($"- Decline Button: {(declineButton != null ? "Set" : "Null")}");
-
             gameManager = Object.FindFirstObjectByType<GameManager>();
-            Debug.Log($"- GameManager: {(gameManager != null ? "Found" : "Not Found")}");
         }
 
         /// <summary>
@@ -108,26 +95,19 @@ namespace CyberSwipe
             #if UNITY_EDITOR
             PlayerPrefs.DeleteKey("AnalyticsConsent");
             PlayerPrefs.Save();
-            Debug.Log("[AnalyticsConsentPopup] Cleared consent for testing");
             #endif
 
             if (requireConsentEachSession)
             {
                 PlayerPrefs.DeleteKey("AnalyticsConsent");
                 PlayerPrefs.Save();
-                Debug.Log("[AnalyticsConsentPopup] Cleared consent for new session");
             }
         }
 
         private void Start()
         {
-            Debug.Log("[AnalyticsConsentPopup] Starting popup initialization");
-            Debug.Log($"- HasConsent: {HasConsent()}");
-            Debug.Log($"- Analytics Enabled: {enableAnalytics}");
-
             if (!enableAnalytics)
             {
-                Debug.Log("[AnalyticsConsentPopup] Analytics disabled, starting game");
                 StartGameIfManagerAvailable();
                 return;
             }
@@ -142,7 +122,6 @@ namespace CyberSwipe
         {
             if (analyticsSettings == null)
             {
-                Debug.LogError("[AnalyticsConsentPopup] AnalyticsSettings not assigned!");
                 StartGameWithoutAnalytics();
                 yield break;
             }
@@ -155,7 +134,6 @@ namespace CyberSwipe
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     isServerReachable = true;
-                    Debug.Log("[AnalyticsConsentPopup] Server connection successful");
                     
                     if (!HasConsent())
                     {
@@ -169,7 +147,6 @@ namespace CyberSwipe
                 else
                 {
                     isServerReachable = false;
-                    Debug.LogWarning($"[AnalyticsConsentPopup] Server connection failed: {request.error}");
                     StartGameWithoutAnalytics();
                 }
             }
@@ -180,12 +157,9 @@ namespace CyberSwipe
         /// </summary>
         private void StartGameWithoutAnalytics()
         {
-            Debug.Log("[AnalyticsConsentPopup] Starting game without analytics");
-            
             if (popupPanel != null && popupPanel.activeSelf)
             {
                 popupPanel.SetActive(false);
-                Debug.Log("[AnalyticsConsentPopup] Closed popup since analytics are not available");
             }
             
             StartGameIfManagerAvailable();
@@ -207,15 +181,9 @@ namespace CyberSwipe
         /// </summary>
         public void ShowPopup()
         {
-            Debug.Log("[AnalyticsConsentPopup] Showing popup");
             if (popupPanel != null)
             {
                 popupPanel.SetActive(true);
-                Debug.Log("[AnalyticsConsentPopup] Panel set to active");
-            }
-            else
-            {
-                Debug.LogError("[AnalyticsConsentPopup] Popup Panel reference is null!");
             }
         }
 
@@ -224,7 +192,6 @@ namespace CyberSwipe
         /// </summary>
         private void OnAcceptClicked()
         {
-            Debug.Log("[AnalyticsConsentPopup] User accepted analytics");
             PlayerPrefs.SetInt("AnalyticsConsent", 1);
             PlayerPrefs.Save();
 
@@ -236,7 +203,6 @@ namespace CyberSwipe
             if (popupPanel != null)
             {
                 popupPanel.SetActive(false);
-                Debug.Log("[AnalyticsConsentPopup] Panel hidden, keeping GameObject active");
             }
 
             StartGameIfManagerAvailable();
@@ -250,11 +216,9 @@ namespace CyberSwipe
             if (isClosing) return;
             isClosing = true;
 
-            Debug.Log("[AnalyticsConsentPopup] User declined analytics");
             PlayerPrefs.SetInt("AnalyticsConsent", 0);
             PlayerPrefs.Save();
 
-            Debug.Log("[AnalyticsConsentPopup] Closing application");
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
             #else
@@ -279,18 +243,12 @@ namespace CyberSwipe
         {
             if (instance == null)
             {
-                Debug.Log("[AnalyticsConsentPopup] IsAnalyticsEnabled: No instance found");
                 return false;
             }
 
             bool hasInstance = instance != null;
             bool analyticsEnabled = instance.enableAnalytics;
             bool serverReachable = instance.isServerReachable;
-            
-            Debug.Log($"[AnalyticsConsentPopup] IsAnalyticsEnabled check:");
-            Debug.Log($"- Has instance: {hasInstance}");
-            Debug.Log($"- Analytics enabled: {analyticsEnabled}");
-            Debug.Log($"- Server reachable: {serverReachable}");
             
             return hasInstance && analyticsEnabled && serverReachable;
         }

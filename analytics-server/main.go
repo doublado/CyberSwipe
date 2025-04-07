@@ -59,7 +59,9 @@ func main() {
 	if serverPort == "" {
 		serverPort = "8080" // Default port if not specified
 	}
+
 	log.Printf("Server starting on port %s", serverPort)
+	
 	if err := router.Run(":" + serverPort); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
