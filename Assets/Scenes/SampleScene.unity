@@ -2319,9 +2319,9 @@ MonoBehaviour:
     os med at forst\xE5, hvordan spillere interagerer med spillet og forbedre oplevelsen
     for alle.\n\nVi indsamler:\n\u2022 Kort-beslutninger (accepter/afvis)\n\u2022
     Spilletid\n\u2022 Ydelsesm\xE5linger\n\nVi indsamler IKKE:\n\u2022 Personlige
-    oplysninger\n\u2022 Enhedsidentifikatorer\n\u2022 Lokationsdata\n\nHvis du afviser,
-    vil spillet lukke med det samme, da vi ikke kan fungere uden disse data.\n\nAccepterer
-    du at dele disse anonyme data?"
+    oplysninger\n\u2022 Lokationsdata\n\nHvis du afviser, vil spillet lukke med det
+    samme, da vi ikke kan fungere uden disse data.\n\nAccepterer du at dele disse
+    anonyme data?"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

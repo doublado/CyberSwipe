@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      phishing-email-examples-03_0: 3779341337297003761
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
