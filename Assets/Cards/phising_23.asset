@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_23
+  m_EditorClassIdentifier: 
+  CardId: 23
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 990
+  cardHeight: 399
+  CardImage: {fileID: 8408974514724546999, guid: 0c9cca2cdabe7ea4d9a54359d28d8361, type: 3}
+  imageScale: 1
+  acceptOutcome: "Du har sendt 0.05 (tilsvarende lidt over 30.000 kroner, til et
+    ukendt nummer uden nogle beviser, du har ingen mulig beskyttelse for yderligere
+    afpresning hvis personen faktisk havde noget p\xE5 dig.\r"
+  denyOutcome: "Du inds\xE5 at der ingen beviser var for at scammeren havde noget
+    p\xE5 dig, men beskeden fik dig til at t\xE6nke p\xE5 de bitcoin du k\xF8bte
+    tilbage i tiden. Du finder din gamle computer med 50.000 i bitcoin\r"
+  acceptRevenueImpact: -30000
+  denyRevenueImpact: 200000

@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardId: 4
   cardCategory: 0
-  IsSafe: 1
-  cardWidth: 1275
-  cardHeight: 794
-  CardImage: {fileID: 5817377009168266091, guid: d96f12da114c4544182567628df0fcf6, type: 3}
+  IsSafe: 0
+  cardWidth: 996
+  cardHeight: 655
+  CardImage: {fileID: -6470460504253458178, guid: 73e70fb4f2e83b948ab338a6d73ef66d, type: 3}
   imageScale: 1
-  acceptOutcome: test
-  denyOutcome: test
-  acceptRevenueImpact: 5000
-  denyRevenueImpact: -15000
+  acceptOutcome: "Du har downloaded en virus som skjuler sig som en antivirus. Virusen
+    har stj\xE5let dine logindata, kreditkortoplysninger og mere."
+  denyOutcome: "Du har undg\xE5et virusen, og har derfor besbaret dig selv mange
+    timers b\xF8vl."
+  acceptRevenueImpact: -15000
+  denyRevenueImpact: 3000

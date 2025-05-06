@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_12
+  m_EditorClassIdentifier: 
+  CardId: 12
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 750
+  cardHeight: 467
+  CardImage: {fileID: 7807590053731662053, guid: db461f3365b37524b90eb7d1090afe94, type: 3}
+  imageScale: 1
+  acceptOutcome: "Desv\xE6re svindel. Den ser meget officiel ud, men der er stadigv\xE6k
+    tegn p\xE5 snyd. Microsoft ville ikke dele en IP, og ville typisk have en l\xE6ngere
+    mere officiel mail. Der er ogs\xE5 en \"farlig trussel\"\r"
+  denyOutcome: "Du spottede en sv\xE6r en. Her var linket en phishing hjemmeside
+    som lignte microsoft's normale login. Du ville have mistet din account.\r"
+  acceptRevenueImpact: -5000
+  denyRevenueImpact: 30000

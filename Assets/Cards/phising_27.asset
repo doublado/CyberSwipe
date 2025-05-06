@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_27
+  m_EditorClassIdentifier: 
+  CardId: 27
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 274
+  cardHeight: 405
+  CardImage: {fileID: -6940560403240694680, guid: b68d72d2ccdb3da4c96adb336e916b58, type: 3}
+  imageScale: 1
+  acceptOutcome: "\"hasteproblem\" \"\xF8konomisk gavn\" \"personlige oplysninger\"
+    er alle 3 ting du burde t\xE6nke p\xE5 n\xE5r du ser beskeder som dem her, klare
+    tegn p\xE5 svindel.\r"
+  denyOutcome: "Godt klaret! du gav ikke bare hjernl\xF8st dine nemID oplysniner
+    v\xE6k.\r"
+  acceptRevenueImpact: -50000
+  denyRevenueImpact: -15000

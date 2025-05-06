@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_9
+  m_EditorClassIdentifier: 
+  CardId: 9
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 750
+  cardHeight: 467
+  CardImage: {fileID: -1461377143976296030, guid: 54229c123ffb3c8479a022d0a7f0a7b6, type: 3}
+  imageScale: 1
+  acceptOutcome: "SCAM! At modtage en mail fra dikklomkwlu... er sj\xE6ldent (aldrig)
+    en officelt generet autorespons. L\xE6g m\xE6rke til tidspresset der er sat p\xE5
+    1 dag, og de vil have kortoplysninger.\r"
+  denyOutcome: "Du s\xF8rgede for at scammere ikke fik lov til at k\xF8be et nyt
+    fjernsyn for dine penge. Godt klaret!\r"
+  acceptRevenueImpact: -5000
+  denyRevenueImpact: 15000

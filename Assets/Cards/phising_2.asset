@@ -15,11 +15,12 @@ MonoBehaviour:
   CardId: 2
   cardCategory: 0
   IsSafe: 1
-  cardWidth: 1275
-  cardHeight: 794
-  CardImage: {fileID: 3779341337297003761, guid: 27c8a4d0669c3574dbe9dd56c4f950f1, type: 3}
+  cardWidth: 595
+  cardHeight: 842
+  CardImage: {fileID: 774855309195615936, guid: c0969a5993fd17140a3e2fafe2422e98, type: 3}
   imageScale: 1
-  acceptOutcome: test
-  denyOutcome: test
-  acceptRevenueImpact: 5000
-  denyRevenueImpact: -15000
+  acceptOutcome: "Ans\xF8gningen kom igennem og der er nu blevet hyret en knald god
+    kolega."
+  denyOutcome: "Grundet mangel p\xE5 arbejdere har din virksomhed lidt store tab."
+  acceptRevenueImpact: 15000
+  denyRevenueImpact: -30000

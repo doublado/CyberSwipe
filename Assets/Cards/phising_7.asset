@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_7
+  m_EditorClassIdentifier: 
+  CardId: 7
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 750
+  cardHeight: 467
+  CardImage: {fileID: -3718319824455508665, guid: 9a0f6eb2fee9bf4468942958b9c86bb0, type: 3}
+  imageScale: 1
+  acceptOutcome: "Du har givet scammere b\xE5de email og den adgangskode som du desv\xE6re
+    bruger p\xE5 flere platforme. din konto bruges nu til at poste propaganda for
+    Xi Jinping."
+  denyOutcome: "Du har form\xE5et at beholde din LinedIn konto ved at ignorere emailen,
+    og har lige landet et l\xE6kkert job som teamleder hos Bestseller.\r"
+  acceptRevenueImpact: -20000
+  denyRevenueImpact: 10000

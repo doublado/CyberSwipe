@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_30
+  m_EditorClassIdentifier: 
+  CardId: 30
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 716
+  cardHeight: 472
+  CardImage: {fileID: 647011772016727283, guid: 3d50573647c0ae74fab040f29913d736, type: 3}
+  imageScale: 1
+  acceptOutcome: "Hvorfor ville NemID skrive uden \xC6\xD8\xC5? der er her fors\xF8g
+    p\xE5 at komme rundt om filtrering. NemID ville aldrig sende et bit.ly link.\r"
+  denyOutcome: "Godt set at der er her fors\xF8g p\xE5 at komme rundt om filtrering.
+    Og NemID ville aldrig sende et bit.ly link. \r"
+  acceptRevenueImpact: -50000
+  denyRevenueImpact: 10000

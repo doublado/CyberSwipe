@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CardId: 5
   cardCategory: 0
-  IsSafe: 1
-  cardWidth: 1275
-  cardHeight: 794
-  CardImage: {fileID: -1578393329961704956, guid: 4e75fb9f9db3fa24b9cb53edc65a702a, type: 3}
+  IsSafe: 0
+  cardWidth: 743
+  cardHeight: 621
+  CardImage: {fileID: -8262490692198667200, guid: 01c14593cda07c840a70ea72096a4b78, type: 3}
   imageScale: 1
-  acceptOutcome: test
-  denyOutcome: test
-  acceptRevenueImpact: 5000
-  denyRevenueImpact: -15000
+  acceptOutcome: "Du har givet dine f\xF8lsomme oplysninger til scammere som nu har
+    k\xF8bt 15000 kr gavekort."
+  denyOutcome: "Du har blokeret og anmeldt mailen, og flere popul\xE6re mailudbydere
+    har nu fjernet mailadressen."
+  acceptRevenueImpact: -15000
+  denyRevenueImpact: 5000

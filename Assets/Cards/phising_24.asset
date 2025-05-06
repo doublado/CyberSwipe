@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_24
+  m_EditorClassIdentifier: 
+  CardId: 24
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 359
+  cardHeight: 693
+  CardImage: {fileID: 5481831539147583321, guid: 0909b96fb7c2dec43b86fcb3855e1d51, type: 3}
+  imageScale: 1
+  acceptOutcome: "Du har sendt 1000 kroner til en ukendt, hvor skal de dog hen hvor
+    en bus billet koster 1000 kroner?\r"
+  denyOutcome: "Godt spottet. 2 ens beskeder i tr\xE6k og ingen svar p\xE5 sp\xF8rgsm\xE5l
+    er ofte tegn p\xE5 svindel. og hvem sp\xF8rger om bitcoin?\r"
+  acceptRevenueImpact: -1000
+  denyRevenueImpact: 2000

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_28
+  m_EditorClassIdentifier: 
+  CardId: 28
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 334
+  cardHeight: 599
+  CardImage: {fileID: -2437529115636051024, guid: 156daf6b38828de4c8584422efd4b83d, type: 3}
+  imageScale: 1
+  acceptOutcome: "N3M!D er en tydelig kopi af NemID hvor de pr\xF8ver at komme forbi
+    filtere. Du har nu mistet adgang til b\xE5de dit NemID, bank, mail og mere.\r"
+  denyOutcome: "Godt spottet, ingen officielle beskeder beh\xF8ver at \xE6ndre deres
+    navn for at komme forbi filtrering.\r"
+  acceptRevenueImpact: -25000
+  denyRevenueImpact: 5000

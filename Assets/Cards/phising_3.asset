@@ -15,11 +15,12 @@ MonoBehaviour:
   CardId: 3
   cardCategory: 0
   IsSafe: 1
-  cardWidth: 1275
-  cardHeight: 794
-  CardImage: {fileID: -1918205308446781102, guid: ac509a9c26b912848afe1ecb5ab639e9, type: 3}
+  cardWidth: 360
+  cardHeight: 780
+  CardImage: {fileID: 7712097872109086167, guid: b3488dc3e71730448803f5794f53195e, type: 3}
   imageScale: 1
-  acceptOutcome: test
-  denyOutcome: test
-  acceptRevenueImpact: 5000
-  denyRevenueImpact: -15000
+  acceptOutcome: Du har nu modtaget 100 DSB point, og er cirka en vand fra 7-eleven
+    rigere.
+  denyOutcome: Du missede 100 DSB point.
+  acceptRevenueImpact: 15
+  denyRevenueImpact: -15

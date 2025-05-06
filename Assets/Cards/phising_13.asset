@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_13
+  m_EditorClassIdentifier: 
+  CardId: 13
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 750
+  cardHeight: 467
+  CardImage: {fileID: -1243432608244644520, guid: 6ee567c04b2372c4cb44f256e5f0eef7, type: 3}
+  imageScale: 1
+  acceptOutcome: "Se hvordan mailen er til en \"@hi-tech-corp.test\" men er fra en
+    \"@hi-tech-c0rp.test\". klart fors\xF8g p\xE5 at efterligne, alts\xE5 spear phishing.
+    der er ogs\xE5 en tidsgr\xE6nse og tale om penge.\r"
+  denyOutcome: "Godt spottet! mailen er til en \"@hi-tech-corp.test\" men er fra
+    en \"@hi-tech-c0rp.test\", alts\xE5 spear phsihing fors\xF8g potentielt. Du sparede
+    her firmaet for $5000, og potentielt mere hvis det skete flere gange.\r"
+  acceptRevenueImpact: -50000
+  denyRevenueImpact: 2000

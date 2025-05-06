@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_11
+  m_EditorClassIdentifier: 
+  CardId: 11
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 750
+  cardHeight: 467
+  CardImage: {fileID: 8564531141762194676, guid: 4e5e2c0407bfee643b4970457694bfea, type: 3}
+  imageScale: 1
+  acceptOutcome: "SCAM! l\xE6g m\xE6rke til stavefejl som \"we'il\" hvor de pr\xF8ver
+    at omg\xE5 filtre. Der er ogs\xE5 et mangel p\xE5 et generaliseret navn, eller
+    en mail som kontoen ville v\xE6re tilknyttet til.\r"
+  denyOutcome: "Du sparede dig selv for at betale en mand fra Indien's nye bil.\r"
+  acceptRevenueImpact: -30000
+  denyRevenueImpact: 20000

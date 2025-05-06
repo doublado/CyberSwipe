@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_16
+  m_EditorClassIdentifier: 
+  CardId: 16
+  cardCategory: 0
+  IsSafe: 1
+  cardWidth: 347
+  cardHeight: 705
+  CardImage: {fileID: 1043278865052197007, guid: 50545060152ba6f4fae0bbf634b32d9f, type: 3}
+  imageScale: 1
+  acceptOutcome: "Legit! du form\xE5ede at genkende at linket var den officelle amazon.com
+    side, og at der ingen haste\xE5rsager eller monit\xE6re gavn var.\r"
+  denyOutcome: "Du missede at din pakke kom, og din nye \"soulja-console\" er blevet
+    stj\xE5let.\r"
+  acceptRevenueImpact: 5000
+  denyRevenueImpact: -10000

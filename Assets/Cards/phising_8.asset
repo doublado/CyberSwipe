@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cfcac26fd83c9a40ab8aca5ae1855ca, type: 3}
+  m_Name: phising_8
+  m_EditorClassIdentifier: 
+  CardId: 8
+  cardCategory: 0
+  IsSafe: 0
+  cardWidth: 750
+  cardHeight: 467
+  CardImage: {fileID: 8996373527281120676, guid: b7412181ee1d94146a6d05432e769f55, type: 3}
+  imageScale: 1
+  acceptOutcome: "Du har \"bekr\xE6ftet\" dine loginoplysinger, samt bankonti, kreditkortoplysninger
+    og mere, hvilket har resulteret i at flere kort skal sp\xE6res, og mange koder
+    skal \xE6ndres. Paypal ville ALDRIG sp\xF8rge om login oplysninger.\r"
+  denyOutcome: "Paypal vil selvf\xF8lgelig aldrig sp\xF8rge om loginoplysninger.
+    Du beholder dermed de 20.000 kroner du havde st\xE5ende derp\xE5.\r"
+  acceptRevenueImpact: -30000
+  denyRevenueImpact: 20000
